@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jelajah Status dan Peran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  /* Dunia "buku tulis kotak-kotak": kertas bergaris, tinta biru-hijau tua, stabilo kuning. Satu tema. */
+  --paper:#f3f5ef;
+  --card:#ffffff;
+  --ink:#16343b;
+  --muted:#5d7278;
+  --line:#d8ded6;
+  --accent:#f2b632;
+  --good:#23845a;
+  --bad:#c8473f;
+  --p1:#2f6fd6; --p2:#a24fc2; --p3:#14866d; --p4:#d46a1f;
+  --font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;
+}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.5rem;font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.panel{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:22px;box-shadow:5px 5px 0 var(--ink)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:var(--ink);color:var(--card)}
+.hl{background:linear-gradient(transparent 58%,var(--accent) 58%,var(--accent) 92%,transparent 92%);padding:0 2px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:2px solid var(--ink);background:var(--accent);font-weight:700;padding:12px 22px;border-radius:10px;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.ghost{background:var(--card)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:3px 3px 0 var(--ink)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+label{font-weight:600;font-size:.9rem}
+input[type=text]{font:inherit;width:100%;padding:10px 12px;border:2px solid var(--ink);border-radius:8px;background:var(--paper)}
+.field{display:flex;flex-direction:column;gap:6px;flex:1 1 200px}
+
+/* Start */
+.hero{display:flex;flex-direction:column;gap:12px}
+.posgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.pos{position:relative;text-align:left;border:2px solid var(--ink);border-radius:12px;background:var(--card);padding:14px 14px 14px 18px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.pos::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
+.pos .n{font-family:var(--font-display);font-weight:800;font-size:.85rem;color:var(--c)}
+.pos .t{font-weight:700;line-height:1.25}
+.pos .d{font-size:.82rem;color:var(--muted)}
+.pos[aria-pressed=true]{box-shadow:4px 4px 0 var(--ink);background:#fffbea}
+.pos[aria-pressed=true]::after{content:"✓";position:absolute;right:10px;top:8px;font-weight:800}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:600}
+.toggle input{width:20px;height:20px;accent-color:var(--ink)}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;font-size:.9rem}
+.how div{border-top:2px solid var(--ink);padding-top:8px}
+.how b{display:block}
+
+/* Play */
+.hud{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+.hud .who{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat{font-family:var(--font-display);font-weight:800;font-size:1.35rem;font-variant-numeric:tabular-nums;text-align:right;line-height:1}
+.stat small{display:block;font-family:var(--font-body);font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.progress{height:10px;border:2px solid var(--ink);border-radius:99px;background:var(--card);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--c,var(--ink));width:0;transition:width .3s}
+.timer{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.timer i{display:block;height:100%;background:var(--ink);width:100%}
+.timer.low i{background:var(--bad)}
+.qtype{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.question{font-size:1.25rem;font-weight:700;line-height:1.4}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:12px 14px;font-weight:500}
+.opt:hover:not(:disabled){background:#fffbea}
+.opt .k{flex:none;width:28px;height:28px;border:2px solid var(--ink);border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.opt.right{background:#e2f4ea;border-color:var(--good)}
+.opt.right .k{background:var(--good);border-color:var(--good);color:#fff}
+.opt.wrong{background:#fbe6e4;border-color:var(--bad)}
+.opt.wrong .k{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt:disabled{cursor:default}
+.tf{grid-template-columns:1fr 1fr}
+.tf .opt{justify-content:center;font-weight:800;font-size:1.1rem;padding:18px}
+.feedback{border-radius:10px;padding:14px 16px;border:2px solid;display:flex;flex-direction:column;gap:6px}
+.feedback.ok{border-color:var(--good);background:#eef8f2}
+.feedback.no{border-color:var(--bad);background:#fdf0ef}
+.feedback strong{font-family:var(--font-display);font-size:1.1rem}
+.feedback .src{font-size:.8rem;color:var(--muted)}
+.pts{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* Sort */
+.sortitem{border:2px dashed var(--ink);border-radius:12px;padding:18px;text-align:center;font-weight:700;font-size:1.15rem;background:#fffbea}
+.dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dots span{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);background:var(--card)}
+.dots span.ok{background:var(--good);border-color:var(--good)}
+.dots span.no{background:var(--bad);border-color:var(--bad)}
+.dots span.cur{background:var(--accent)}
+.buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.bucket{border:2px solid var(--ink);border-radius:10px;background:var(--card);padding:14px 10px;font-weight:700;line-height:1.25}
+.bucket:hover:not(:disabled){background:#fffbea}
+.bucket.right{background:#e2f4ea;border-color:var(--good)}
+.bucket.wrong{background:#fbe6e4;border-color:var(--bad)}
+
+/* Result */
+.bigscore{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end}
+.bigscore .num{font-family:var(--font-display);font-weight:800;font-size:clamp(3rem,12vw,5rem);line-height:.9;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font-family:var(--font-display);font-weight:800;font-size:1.2rem;padding:6px 14px;border:2px solid var(--ink);border-radius:8px;background:var(--accent);transform:rotate(-2deg)}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(110px,180px) 1fr 56px;gap:10px;align-items:center;font-size:.9rem}
+.bar .track{height:14px;border:2px solid var(--ink);border-radius:99px;overflow:hidden;background:var(--paper)}
+.bar .track i{display:block;height:100%;background:var(--c)}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.review{display:flex;flex-direction:column;gap:10px}
+.review details{border:2px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--card)}
+.review summary{cursor:pointer;font-weight:600}
+.review .ans{font-size:.9rem;margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.hidden{display:none!important}
+textarea{width:100%;min-height:140px;font:inherit;font-size:.85rem;border:2px solid var(--ink);border-radius:8px;padding:10px}
+footer{font-size:.8rem;color:var(--muted);text-align:center}
+@media (max-width:420px){
+  .panel{padding:16px;box-shadow:3px 3px 0 var(--ink)}
+  .question{font-size:1.1rem}
+  .bar{grid-template-columns:1fr 48px}
+  .bar .track{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes pop{0%{transform:scale(.97)}100%{transform:scale(1)}}
+.pop{animation:pop .18s ease-out}
+
+/* Login dan admin */
+select,input[type=password]{font:inherit;width:100%;padding:10px 12px;border:2px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink)}
+select:disabled{opacity:.5}
+.err{color:var(--bad);font-weight:600;font-size:.9rem;min-height:1.2em}
+.player{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border:2px solid var(--ink);border-radius:12px;background:var(--card)}
+.player b{font-size:1.05rem}
+.linkbtn{background:none;border:0;padding:0;text-decoration:underline;font-weight:600;color:var(--muted)}
+.sync{font-size:.85rem;padding:8px 12px;border-radius:8px;background:var(--paper);border:1px solid var(--line)}
+.sync.ok{border-color:var(--good);color:var(--good)}
+.sync.wait{border-color:var(--accent)}
+.wide{max-width:1180px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{border:2px solid var(--ink);border-radius:12px;background:var(--card);padding:12px 14px}
+.tile b{display:block;font-family:var(--font-display);font-size:1.8rem;line-height:1;font-variant-numeric:tabular-nums}
+.tile span{font-size:.8rem;color:var(--muted);font-weight:600}
+.tablewrap{overflow-x:auto;border:2px solid var(--ink);border-radius:12px;background:var(--card)}
+table.adm{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+table.adm th,table.adm td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.adm th{background:#fffbea;position:sticky;top:0}
+table.adm tbody tr{cursor:pointer}
+table.adm tbody tr:hover td{background:#f7f9f4}
+table.adm tr.sel td{background:#fff3c9}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;font-weight:700}
+.pill.no{background:#eceee9;color:var(--muted)}
+.pill.g{background:#e2f4ea;color:var(--good)}
+.pill.m{background:#fff3c9;color:#8a6300}
+.pill.b{background:#fbe6e4;color:var(--bad)}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main class="wrap" id="main">
+
+<!-- ========== LOGIN SISWA ========== -->
+<section id="scr-login" class="hidden" style="display:flex;flex-direction:column;gap:20px">
+  <div class="hero">
+    <span class="tag">Sosiologi Kelas X</span>
+    <h1>Jelajah <span class="hl">Status &amp; Peran</span></h1>
+    <p class="muted" style="max-width:60ch">Pilih kelasmu, lalu pilih namamu. Nilaimu akan tercatat di rekap guru.</p>
+  </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+    <div class="field"><label for="lg-kelas">Kelas</label><select id="lg-kelas"><option value="">Pilih kelas</option></select></div>
+    <div class="field"><label for="lg-nama">Nama</label><select id="lg-nama" disabled><option value="">Pilih kelas dulu</option></select></div>
+    <div class="err" id="lg-err" role="alert"></div>
+    <div class="row"><button class="btn" id="btn-login">Masuk</button><button class="btn ghost" id="btn-guru">Masuk sebagai guru</button></div>
+  </div>
+</section>
+
+<!-- ========== LOGIN GURU ========== -->
+<section id="scr-admlogin" class="hidden" style="display:flex;flex-direction:column;gap:20px">
+  <div class="hero"><span class="tag">Guru</span><h1>Rekap nilai siswa</h1></div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+    <p class="muted">Sandi admin diatur di Apps Script pada Google Sheets milik guru, tidak tersimpan di dalam game.</p>
+    <div class="field"><label for="adm-pass">Sandi admin</label><input type="password" id="adm-pass" autocomplete="current-password"></div>
+    <div class="err" id="adm-err" role="alert"></div>
+    <div class="row"><button class="btn" id="btn-admgo">Buka rekap</button><button class="btn ghost" id="btn-admback">Kembali</button></div>
+  </div>
+</section>
+
+<!-- ========== REKAP GURU ========== -->
+<section id="scr-admin" class="hidden" style="display:flex;flex-direction:column;gap:16px"></section>
+
+<!-- ========== LAYAR AWAL ========== -->
+<section id="scr-start" class="hidden" style="display:flex;flex-direction:column;gap:20px">
+  <div class="hero">
+    <span class="tag">Sosiologi Kelas X</span>
+    <h1>Jelajah <span class="hl">Status &amp; Peran</span></h1>
+    <p class="muted" style="max-width:60ch">Lewati empat pos materi dari modul <i>Status dan Peran Individu dalam Kelompok Sosial</i>. Jawab kuis, tebak benar atau salah, dan kelompokkan konsep ke kategori yang tepat. Soal diacak setiap permainan.</p>
+  </div>
+
+  <div class="player"><div><span class="muted" style="font-size:.8rem">Pemain</span><br><b id="pl-name"></b> <span class="muted" id="pl-kelas"></span></div><button class="linkbtn" id="btn-logout">Bukan kamu? Ganti pemain</button></div>
+
+  <div class="panel" style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>Pilih pos yang ingin dimainkan</h3>
+      <div class="posgrid" id="posgrid"></div>
+      <p class="muted" style="font-size:.85rem">Semua pos terpilih secara bawaan. Ketuk untuk menyalakan atau mematikan pos.</p>
+    </div>
+    <label class="toggle" for="inp-timer"><input type="checkbox" id="inp-timer" checked> Pakai batas waktu 25 detik per soal (bonus poin untuk jawaban cepat)</label>
+    <div class="row"><button class="btn" id="btn-start">Mulai menjelajah</button><span class="muted" id="start-info" style="font-size:.9rem"></span></div>
+  </div>
+
+  <div class="how">
+    <div><b>Pilihan ganda</b>100 poin per jawaban benar, ditambah bonus waktu.</div>
+    <div><b>Benar atau salah</b>Putuskan apakah pernyataan sesuai modul.</div>
+    <div><b>Kelompokkan</b>Masukkan tiap konsep ke kategori yang tepat, 50 poin per item.</div>
+    <div><b>Beruntun</b>Jawaban benar berturut-turut memberi bonus hingga +40.</div>
+  </div>
+</section>
+
+<!-- ========== LAYAR MAIN ========== -->
+<section id="scr-play" class="hidden" style="display:flex;flex-direction:column;gap:16px">
+  <div class="hud">
+    <div class="who">
+      <span class="tag" id="hud-pos" style="align-self:flex-start">Pos 1</span>
+      <div class="progress" id="hud-prog"><i></i></div>
+      <span class="muted" style="font-size:.82rem" id="hud-count">Soal 1 dari 7</span>
+    </div>
+    <div class="stat"><span id="hud-streak">0</span><small>Beruntun</small></div>
+    <div class="stat"><span id="hud-score">0</span><small>Poin</small></div>
+  </div>
+  <div class="panel pop" id="qcard" style="display:flex;flex-direction:column;gap:16px">
+    <div class="timer" id="timer"><i></i></div>
+    <div class="qtype" id="q-type">Pilihan ganda</div>
+    <div class="question" id="q-text"></div>
+    <div id="q-body"></div>
+    <div id="q-feedback"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn hidden" id="btn-next">Lanjut</button></div>
+  </div>
+  <p class="muted" style="font-size:.8rem;text-align:center">Pintasan papan ketik: 1–5 untuk memilih jawaban, B atau S untuk benar/salah, Enter untuk lanjut.</p>
+</section>
+
+<!-- ========== JEDA ANTARPOS ========== -->
+<section id="scr-break" class="hidden">
+  <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+    <span class="tag" id="br-tag">Pos selesai</span>
+    <h2 id="br-title"></h2>
+    <p id="br-text"></p>
+    <div class="row"><button class="btn" id="btn-continue">Lanjut ke pos berikutnya</button></div>
+  </div>
+</section>
+
+<!-- ========== HASIL ========== -->
+<section id="scr-result" class="hidden" style="display:flex;flex-direction:column;gap:20px">
+  <div class="panel" style="display:flex;flex-direction:column;gap:18px">
+    <span class="tag" id="rs-who">Hasil</span>
+    <div class="bigscore">
+      <div><div class="num" id="rs-pct">0%</div><span class="muted">jawaban benar</span></div>
+      <div><div class="num" id="rs-score" style="font-size:clamp(2rem,8vw,3rem)">0</div><span class="muted">total poin</span></div>
+      <span class="badge" id="rs-badge"></span>
+    </div>
+    <p id="rs-msg"></p>
+    <div class="sync" id="rs-sync" aria-live="polite"></div>
+    <h3>Penguasaan per pos</h3>
+    <div class="bars" id="rs-bars"></div>
+    <div class="row">
+      <button class="btn" id="btn-again">Main lagi</button>
+      <button class="btn ghost" id="btn-copy">Salin hasil</button>
+      <span class="muted" id="copy-msg" style="font-size:.9rem" aria-live="polite"></span>
+    </div>
+    <textarea id="copy-fallback" class="hidden" readonly aria-label="Teks hasil untuk disalin"></textarea>
+  </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+    <h3 id="rv-title">Bahas lagi jawaban yang keliru</h3>
+    <div class="review" id="rs-review"></div>
+  </div>
+</section>
+
+<footer>Soal disusun dari Modul Belajar Mandiri Sosiologi Kelas X: Status dan Peran Individu dalam Kelompok Sosial (Bagian A–E).</footer>
+</main>
+
+<script>
+/* ============================================================
+   PENGATURAN GURU
+   Tempel URL Web App Google Apps Script (berakhiran /exec) di bawah ini.
+   Lihat README.md untuk langkah membuatnya.
+   ============================================================ */
+const SHEET_URL = "TEMPEL_URL_WEB_APP_DI_SINI";
+
+const GAME = "Jelajah Status & Peran";
+const SHEET_OK = /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(SHEET_URL);
+
+/* ===================== DAFTAR SISWA ===================== */
+const STUDENTS = [{"l":"L","nm":"ABDI NUGROHO","k":"X-1","a":1},{"l":"P","nm":"ADIRA EKA FEBRIYANTI","k":"X-1","a":2},{"l":"L","nm":"AHMAD ZAKKI FADLI RIJALULLAH","k":"X-1","a":3},{"l":"P","nm":"ANGELA ENJA SABILA","k":"X-1","a":4},{"l":"P","nm":"ARDINA NUR CAHAYANI","k":"X-1","a":5},{"l":"L","nm":"AREL FRANDI PRASETIYO","k":"X-1","a":6},{"l":"P","nm":"AVIKA RARA JELITA","k":"X-1","a":7},{"l":"P","nm":"AZKA IHTIFA","k":"X-1","a":8},{"l":"L","nm":"BIMA RAHMA PUTRA","k":"X-1","a":9},{"l":"P","nm":"CITRA AULIA RAHMADHANI","k":"X-1","a":10},{"l":"P","nm":"DINA AGUSTINA RAMADANI","k":"X-1","a":11},{"l":"L","nm":"EKA PUTRA SETYAWAN","k":"X-1","a":12},{"l":"P","nm":"ENY FITRIANINGSIH","k":"X-1","a":13},{"l":"L","nm":"FAZA RAZKA RAMADHAN","k":"X-1","a":14},{"l":"P","nm":"FRESTIKA ILMA DINI","k":"X-1","a":15},{"l":"L","nm":"HENDRICH SJ","k":"X-1","a":16},{"l":"P","nm":"INDAH NUR FIANTI","k":"X-1","a":17},{"l":"P","nm":"KANYA LINARAS AMARTANI","k":"X-1","a":18},{"l":"P","nm":"KIRANA LUTHVIA FEBRIANI JOVANKA","k":"X-1","a":19},{"l":"L","nm":"KRESNA BEKTI BRELIANO","k":"X-1","a":20},{"l":"P","nm":"MAULIDHIYA NUR HAFIDHOH","k":"X-1","a":21},{"l":"L","nm":"MOCHAMAD ALAQ KURNIAWAN","k":"X-1","a":22},{"l":"L","nm":"MOHAMMAD NUR ILHAM","k":"X-1","a":23},{"l":"L","nm":"MUHAMMAD ZIDANE DWI FEBRIANSYAH","k":"X-1","a":24},{"l":"P","nm":"NADA NADHIFATUL HUSNIAH","k":"X-1","a":25},{"l":"P","nm":"NIKEN NIRWANA FAUZIAH","k":"X-1","a":26},{"l":"P","nm":"NURAINI AMELLIA PUTRI","k":"X-1","a":27},{"l":"L","nm":"RAFFA PUTRA SANVARO","k":"X-1","a":28},{"l":"P","nm":"RAHMA ANDHITA PUTRI ANDRIAN","k":"X-1","a":29},{"l":"L","nm":"RISQI IRWANSYAH","k":"X-1","a":30},{"l":"P","nm":"RIZQI PUTRI ARIANI","k":"X-1","a":31},{"l":"P","nm":"TRI FADILLAH","k":"X-1","a":32},{"l":"P","nm":"WADYANI ARTYASRANI","k":"X-1","a":33},{"l":"L","nm":"WILDAN RADITIYA PRATAMA","k":"X-1","a":34},{"l":"L","nm":"ABI MALIK BASKORO","k":"X-2","a":1},{"l":"P","nm":"AFRAH NUR WARISMA ROCHIM","k":"X-2","a":2},{"l":"L","nm":"AKSEL LAZARUS SYAH MUBARAK","k":"X-2","a":3},{"l":"P","nm":"ANITA PRAMUDIA ANDINI HERYDA","k":"X-2","a":4},{"l":"L","nm":"ARFAN ALVINO AKHMAL PUTRA","k":"X-2","a":5},{"l":"P","nm":"ARISKIA SURYA PUTRI SANTOSA","k":"X-2","a":6},{"l":"P","nm":"AVRISA MARATUL LATHIFAH","k":"X-2","a":7},{"l":"P","nm":"BENING THEERTANY","k":"X-2","a":8},{"l":"P","nm":"CITRA KHOIRUN NIZA","k":"X-2","a":9},{"l":"L","nm":"DANNY KEVIANNO PUTRA","k":"X-2","a":10},{"l":"P","nm":"DISYA AULIA CESANABILA","k":"X-2","a":11},{"l":"L","nm":"EKO SURYO SAPUTRO","k":"X-2","a":12},{"l":"L","nm":"ERFANDA AHMAD JOVANDA","k":"X-2","a":13},{"l":"P","nm":"ERNA PUTRI AGUSTIN","k":"X-2","a":14},{"l":"L","nm":"FIKRY AJI DARMANSYAH","k":"X-2","a":15},{"l":"P","nm":"FRIDAY AZIZAH","k":"X-2","a":16},{"l":"L","nm":"IKWAN MAHMUDI","k":"X-2","a":17},{"l":"P","nm":"INESTAVANI DECTY SYAVANA","k":"X-2","a":18},{"l":"P","nm":"KAYLA RESTY ANANTA","k":"X-2","a":19},{"l":"L","nm":"LIONEL MESSI BARRON ABDULLOH","k":"X-2","a":20},{"l":"P","nm":"MEDA OCTAVIANI","k":"X-2","a":21},{"l":"L","nm":"MOCHAMAD AMIR DZIKRO","k":"X-2","a":22},{"l":"L","nm":"MUZAKI AL RASYID","k":"X-2","a":23},{"l":"P","nm":"NADINNE CITRA KIRANA","k":"X-2","a":24},{"l":"P","nm":"NINA FARIDATUS SALMA","k":"X-2","a":25},{"l":"P","nm":"NURMALITA KARIN ANGGRAINI","k":"X-2","a":26},{"l":"L","nm":"RAFI FERDIANSYAH","k":"X-2","a":27},{"l":"P","nm":"RAHMA NOVITASARI","k":"X-2","a":28},{"l":"L","nm":"RIZKY PRATAMA","k":"X-2","a":29},{"l":"P","nm":"SABRINA MEIDIAN MANTOVANI","k":"X-2","a":30},{"l":"P","nm":"SHABIRA RIZQI MARITZA PUTRI","k":"X-2","a":31},{"l":"P","nm":"USWATUN HASANAH","k":"X-2","a":32},{"l":"P","nm":"WILDA NISWATUL IZZA","k":"X-2","a":33},{"l":"L","nm":"WILLSEN IRAWAN SYAPUTRA","k":"X-2","a":34},{"l":"L","nm":"ABQORI ITTAQI FAUZY","k":"X-3","a":1},{"l":"P","nm":"AFRIDA SALMA QUMAYSHARO","k":"X-3","a":2},{"l":"L","nm":"ALDO SEPTIANO WIJIPUTRA","k":"X-3","a":3},{"l":"P","nm":"ANIVA DWI PURNAMA SARI","k":"X-3","a":4},{"l":"L","nm":"ARGA SAKTI MADEWA","k":"X-3","a":5},{"l":"P","nm":"ASRIANI NUR HIDAYAH","k":"X-3","a":6},{"l":"P","nm":"AYU ALIZA PURWANTI","k":"X-3","a":7},{"l":"P","nm":"BINTAN HASNA NAILA MUAZZAROH","k":"X-3","a":8},{"l":"P","nm":"CLARA JEVICA ZEVILIA PUTRI","k":"X-3","a":9},{"l":"L","nm":"DAVIAN OCTA JULIANO","k":"X-3","a":10},{"l":"P","nm":"DWI ANGGUN ARISKA","k":"X-3","a":11},{"l":"L","nm":"ELVINO PUTRA NURFAREL","k":"X-3","a":12},{"l":"P","nm":"ERSI ADELIA","k":"X-3","a":13},{"l":"L","nm":"FIRLY ANDREA SAPUTRA","k":"X-3","a":14},{"l":"P","nm":"GEYSYA OKTAVIA","k":"X-3","a":15},{"l":"P","nm":"INTAN PUTRI FEBRIYANTI","k":"X-3","a":16},{"l":"L","nm":"IZZAT ALTHAF PUTRA ARJUNA","k":"X-3","a":17},{"l":"P","nm":"KAYLA RYSTA ANANTA","k":"X-3","a":18},{"l":"P","nm":"LIONTIN RAHMA AYU RAMADANI","k":"X-3","a":19},{"l":"L","nm":"LUTFI AFDANA PUTRA","k":"X-3","a":20},{"l":"P","nm":"MEGA PUTRI AYU","k":"X-3","a":21},{"l":"L","nm":"MOCHAMAD NAVY ALFATONI","k":"X-3","a":22},{"l":"L","nm":"MUH BISRI MUSTOFA","k":"X-3","a":23},{"l":"P","nm":"NADYA WAHYU STEVANI","k":"X-3","a":24},{"l":"L","nm":"NAZZALA DZEKO WILDANOLA","k":"X-3","a":25},{"l":"P","nm":"NINIK INDI LESTARI","k":"X-3","a":26},{"l":"P","nm":"NURUL LAILI","k":"X-3","a":27},{"l":"L","nm":"RAFKA ADRIE MAULANA","k":"X-3","a":28},{"l":"P","nm":"RAMADHANI PUTRI WIGUNA","k":"X-3","a":29},{"l":"L","nm":"RONI ARIF PRIYANTO","k":"X-3","a":30},{"l":"P","nm":"SALSABELLA EKA NUR OKTAVIANA","k":"X-3","a":31},{"l":"P","nm":"SHEFRINA MARDALENA","k":"X-3","a":32},{"l":"P","nm":"VANESA FEBRIANI","k":"X-3","a":33},{"l":"P","nm":"WINNA MUTIA ARIFAH","k":"X-3","a":34},{"l":"L","nm":"YUSUF ANANDA PUTRA","k":"X-3","a":35},{"l":"L","nm":"ACHMAD RIZKY HABIBUNAZA","k":"X-4","a":1},{"l":"P","nm":"AFRINDIA KAYLA ZAHRA","k":"X-4","a":2},{"l":"L","nm":"ALI GUFRON","k":"X-4","a":3},{"l":"P","nm":"ANNISATUS SABILA YULIANTI","k":"X-4","a":4},{"l":"L","nm":"ARIF RAMANSYAH","k":"X-4","a":5},{"l":"P","nm":"ASSAHRA ZULFA NURIYYAH","k":"X-4","a":6},{"l":"P","nm":"AYU LULUK RIMA KHUSNUL KHOTIMAH","k":"X-4","a":7},{"l":"P","nm":"BUNGA AMILIA RAHAYU","k":"X-4","a":8},{"l":"L","nm":"DAVINZA GIOVANI RAMADHAN","k":"X-4","a":9},{"l":"P","nm":"DELLA NADA ISLAMIYA","k":"X-4","a":10},{"l":"P","nm":"DYSTA DWI AYU KIRANA","k":"X-4","a":11},{"l":"L","nm":"ERLANGGA MULYA WINATA","k":"X-4","a":12},{"l":"P","nm":"FAAZA DWI NUR KARIMAH","k":"X-4","a":13},{"l":"L","nm":"FITRA HARIS NUGRAHA","k":"X-4","a":14},{"l":"P","nm":"GUARSI ISTININGRUM","k":"X-4","a":15},{"l":"P","nm":"IRTANIA AYU NUR KHALISA","k":"X-4","a":16},{"l":"L","nm":"KAINDRA AKA SETIA","k":"X-4","a":17},{"l":"P","nm":"KAYLA YESI PUSPITA","k":"X-4","a":18},{"l":"P","nm":"LISDIANAWATI","k":"X-4","a":19},{"l":"L","nm":"M ALDO MAULANA PUTRA","k":"X-4","a":20},{"l":"P","nm":"MEISYA FARIDATUN AMALA","k":"X-4","a":21},{"l":"L","nm":"MOCHAMMAD AKMALUL IBRAM","k":"X-4","a":22},{"l":"L","nm":"MUHAMAD REIHAN GILANG TINEGAR","k":"X-4","a":23},{"l":"P","nm":"NAKEISHA SAKHI HAFIZHAH","k":"X-4","a":24},{"l":"P","nm":"NISA LARAS TRI PURBASARI","k":"X-4","a":25},{"l":"L","nm":"NOVAN TRI YOGA PRASETYA","k":"X-4","a":26},{"l":"P","nm":"OKTAVIANI EKA NINGTIYAS","k":"X-4","a":27},{"l":"L","nm":"RAMADIAN ACHMAD SETYADI","k":"X-4","a":28},{"l":"P","nm":"RASTI AYU ADELIA","k":"X-4","a":29},{"l":"P","nm":"SALSABILA KIREINA PUTRI","k":"X-4","a":30},{"l":"L","nm":"SANDY TRY MAYHENDRA","k":"X-4","a":31},{"l":"P","nm":"SHEILA KURNIA AYU","k":"X-4","a":32},{"l":"P","nm":"VANESA PUTRI","k":"X-4","a":33},{"l":"P","nm":"YASMINE AURELLY ANGEL FARADISE","k":"X-4","a":34},{"l":"L","nm":"ZAENAL AKBAR RIFAI","k":"X-4","a":35},{"l":"L","nm":"ADHI PERMANA","k":"X-5","a":1},{"l":"P","nm":"AFRIZZA YUSTIE LIA","k":"X-5","a":2},{"l":"L","nm":"ALVIN DWI PRASETYA","k":"X-5","a":3},{"l":"P","nm":"ANYELIA GALUH JULIANE","k":"X-5","a":4},{"l":"P","nm":"ASYIFA ZAHRANI","k":"X-5","a":5},{"l":"L","nm":"AVAN DZAKA ALDIANSYAH","k":"X-5","a":6},{"l":"P","nm":"AYUNDA MEYSHA PUTRI SILVIA","k":"X-5","a":7},{"l":"P","nm":"BUNGA AYU PERTIWI","k":"X-5","a":8},{"l":"P","nm":"DESI AULIA","k":"X-5","a":9},{"l":"L","nm":"DESTA NUR ROHMAN","k":"X-5","a":10},{"l":"P","nm":"EDDRY INDRYA VILLA","k":"X-5","a":11},{"l":"L","nm":"ERLANGGA REZKY OKTAVIANO","k":"X-5","a":12},{"l":"P","nm":"FADILA OKTAVINAJAH","k":"X-5","a":13},{"l":"L","nm":"GALIH CAHYONO","k":"X-5","a":14},{"l":"P","nm":"HENNY PUSPITA SARI","k":"X-5","a":15},{"l":"P","nm":"JANET RETNO ASTUTIK PENU","k":"X-5","a":16},{"l":"L","nm":"KEANU BIMA PRADANA PUTRA","k":"X-5","a":17},{"l":"P","nm":"KETRIN AULINA PUTRI EVELIN","k":"X-5","a":18},{"l":"P","nm":"LUIS FATMAWATI","k":"X-5","a":19},{"l":"L","nm":"M IBRAHIM PUTRA ARROKIM","k":"X-5","a":20},{"l":"P","nm":"MEISYA LATHIFATUL ZASKIA","k":"X-5","a":21},{"l":"L","nm":"MOH DODYK PRASETYAWAN","k":"X-5","a":22},{"l":"L","nm":"MUHAMMAD BAYU BASKORO","k":"X-5","a":23},{"l":"P","nm":"NANDA DWI AYUNI","k":"X-5","a":24},{"l":"P","nm":"NITA DWI ANUGRAH","k":"X-5","a":25},{"l":"L","nm":"NUR ALAMSYAH HARIANTO","k":"X-5","a":26},{"l":"P","nm":"PRANAKIRRA PUTRI LINTARAJI","k":"X-5","a":27},{"l":"P","nm":"RASTY BUDIATI","k":"X-5","a":28},{"l":"L","nm":"REHAN FIRDAUS ARYASUNAS","k":"X-5","a":29},{"l":"P","nm":"SALWA RICHA ALFINA","k":"X-5","a":30},{"l":"P","nm":"SHELA OLIFIAH","k":"X-5","a":31},{"l":"P","nm":"VELIANA ALDIANI RAHAYU","k":"X-5","a":32},{"l":"P","nm":"ZAHRA INDI RAHMADANI","k":"X-5","a":33},{"l":"L","nm":"ZAKI IVANDER PRASETIYO","k":"X-5","a":34},{"l":"L","nm":"RENO ADISTYAR VEBRAL","k":"X-6","a":1},{"l":"L","nm":"ADI PRASETYO","k":"X-6","a":2},{"l":"P","nm":"AISYA PUTRI SALSABILA","k":"X-6","a":3},{"l":"L","nm":"ALVIN KURNIAWAN","k":"X-6","a":4},{"l":"P","nm":"APRILIA NURUL AINI","k":"X-6","a":5},{"l":"P","nm":"AULIA PUTRI WAHYUNI","k":"X-6","a":6},{"l":"P","nm":"AYUNDA QUEENTADIRA MAULINA","k":"X-6","a":7},{"l":"L","nm":"AZRIEL DZAKWANNO ANSHOR","k":"X-6","a":8},{"l":"P","nm":"CACA DEA LARASATI","k":"X-6","a":9},{"l":"P","nm":"DESVITA VIOLA SARI","k":"X-6","a":10},{"l":"L","nm":"DIKDHO FATJRIN DWI ATMODJO","k":"X-6","a":11},{"l":"P","nm":"ELIZABETH RONSUMBRE","k":"X-6","a":12},{"l":"L","nm":"FADHIL BERYL ARISTO","k":"X-6","a":13},{"l":"P","nm":"FARA GITA ASMARA","k":"X-6","a":14},{"l":"L","nm":"GALIH TRIAWAN","k":"X-6","a":15},{"l":"P","nm":"HESTI UMMAIROH","k":"X-6","a":16},{"l":"L","nm":"KEVIN ALVINO PUTRA","k":"X-6","a":17},{"l":"P","nm":"KEYLA AYUDYA","k":"X-6","a":18},{"l":"P","nm":"LYRA BERLIANA","k":"X-6","a":19},{"l":"L","nm":"MAULANA FERDIANSYAH","k":"X-6","a":20},{"l":"P","nm":"MEISYA ZIFARA AURELLA","k":"X-6","a":21},{"l":"L","nm":"MOH FADHIL TSALITSUL ABROR","k":"X-6","a":22},{"l":"L","nm":"MUHAMMAD FAHIM EL FIKRI","k":"X-6","a":23},{"l":"P","nm":"NASA NURUL FITRIANA","k":"X-6","a":24},{"l":"P","nm":"NONIK AYU RAHMAWATI KARDIAWANDARI","k":"X-6","a":25},{"l":"L","nm":"PASHA FIRMAN RAMADHANI","k":"X-6","a":26},{"l":"P","nm":"PRASETYA","k":"X-6","a":27},{"l":"P","nm":"REFANY ANGGITA PUTRI","k":"X-6","a":28},{"l":"L","nm":"REVANO DWI NUR PRADANA","k":"X-6","a":29},{"l":"P","nm":"SASKYA PUTRI YUANITA","k":"X-6","a":30},{"l":"L","nm":"SATRIO WICAKSONO","k":"X-6","a":31},{"l":"P","nm":"SHIEREN REGITA AURA ZANETTA","k":"X-6","a":32},{"l":"P","nm":"VIONA RESKIKA ANGGRAINI","k":"X-6","a":33},{"l":"P","nm":"ZAKIYATUL MAULIDINA PUTRI","k":"X-6","a":34},{"l":"L","nm":"ZIA ZAKI RIZQULLAH","k":"X-6","a":35},{"l":"P","nm":"ABELLIN LOVENTA ADIAN PUTRI","k":"X-7","a":1},{"l":"L","nm":"ADITYA FERNANDO RAMADHAN","k":"X-7","a":2},{"l":"P","nm":"AL SAFA SHIFANA AURILLIA","k":"X-7","a":3},{"l":"L","nm":"ANANDA FERDY ARDIANSYAH","k":"X-7","a":4},{"l":"P","nm":"APRILIA PUTRI NUR VIANI","k":"X-7","a":5},{"l":"P","nm":"AULIANA NUR AZIZI","k":"X-7","a":6},{"l":"P","nm":"AZAHRA MAYSTA NAFIZA","k":"X-7","a":7},{"l":"L","nm":"AZZA ARTHA ADMAJA","k":"X-7","a":8},{"l":"P","nm":"CALISTA PUTRI CANDRA NING TYAS","k":"X-7","a":9},{"l":"P","nm":"DESY NATALIA PUTRI","k":"X-7","a":10},{"l":"L","nm":"DIRGA ENDI KAFATRIPUTRA","k":"X-7","a":11},{"l":"P","nm":"ELSA TRYA RAMADHANI","k":"X-7","a":12},{"l":"L","nm":"FAHREZA RAFFA FIRDAUS","k":"X-7","a":13},{"l":"P","nm":"FARRELIO REYGA VINDHA","k":"X-7","a":14},{"l":"L","nm":"GILANG DWI SETIAWAN","k":"X-7","a":15},{"l":"P","nm":"ICA AIYUMA IMROATUS SHOLIKHAH","k":"X-7","a":16},{"l":"P","nm":"JIHAN AYU FIRNANDA","k":"X-7","a":17},{"l":"L","nm":"KEVIN AZURA WISNU JULIO","k":"X-7","a":18},{"l":"P","nm":"KEYLA PUSPITASARI","k":"X-7","a":19},{"l":"P","nm":"MAHARANI ANGELIA PUTRI PURNOMO","k":"X-7","a":20},{"l":"L","nm":"MAULANA NOUH ALAMSYAH","k":"X-7","a":21},{"l":"P","nm":"MEYDA ALIFIA ARIYANI","k":"X-7","a":22},{"l":"L","nm":"MOH RIFALDO IKHSANUDIN FIRDAUS","k":"X-7","a":23},{"l":"L","nm":"MUHAMMAD RENDI PANGESTU","k":"X-7","a":24},{"l":"P","nm":"NAURA FITRIA RAYYANI","k":"X-7","a":25},{"l":"P","nm":"NOVA AYU KUSUMA MUTIARA ZADI","k":"X-7","a":26},{"l":"P","nm":"PUSPITA DEWI RAMADHANI","k":"X-7","a":27},{"l":"L","nm":"RADITYA RIZKY SAPUTRA","k":"X-7","a":28},{"l":"P","nm":"RENITA NUR ROZAKIA","k":"X-7","a":29},{"l":"L","nm":"REZA MAULANA ERSANDY","k":"X-7","a":30},{"l":"P","nm":"SEFY WIDYA MELATY","k":"X-7","a":31},{"l":"L","nm":"SUNAN MAULANA SAKTI","k":"X-7","a":32},{"l":"P","nm":"VIORENTIN RAHMADHANI","k":"X-7","a":33},{"l":"P","nm":"ZIFARA ANDHARA PUTRI","k":"X-7","a":34},{"l":"P","nm":"ADELIA PUTRI WILUNDANI","k":"X-8","a":1},{"l":"L","nm":"ADITYA KELVIN ARFENDO","k":"X-8","a":2},{"l":"P","nm":"ALIFYA OKTAFIANA","k":"X-8","a":3},{"l":"L","nm":"ANDRE BRILIAN CANDRA WICAKSONO","k":"X-8","a":4},{"l":"P","nm":"APRILIYA","k":"X-8","a":5},{"l":"P","nm":"AURA ZAHROTUS SASI SATIFAH","k":"X-8","a":6},{"l":"P","nm":"AZAHRA PUSPITA MAY SYAFIRA","k":"X-8","a":7},{"l":"L","nm":"BAGUS PRIAMBODO","k":"X-8","a":8},{"l":"P","nm":"CALYA KHAYYIRAH IVANA TRISNA","k":"X-8","a":9},{"l":"P","nm":"DEVI ADELIA","k":"X-8","a":10},{"l":"L","nm":"DODI TYAN SYAHREZA","k":"X-8","a":11},{"l":"P","nm":"ELSI THIRZA AZILIA INDRIANI","k":"X-8","a":12},{"l":"L","nm":"FARID REHANDINATA","k":"X-8","a":13},{"l":"P","nm":"FELIK PUJI MAHARANI","k":"X-8","a":14},{"l":"L","nm":"GILANG TRI GUNAWAN","k":"X-8","a":15},{"l":"P","nm":"ICHA REGINA PUTRI","k":"X-8","a":16},{"l":"P","nm":"JUWITA PUTRI","k":"X-8","a":17},{"l":"L","nm":"KEVIN REYNALDI SETIYAWAN","k":"X-8","a":18},{"l":"P","nm":"KEYZA SEFTI MAGDALENA","k":"X-8","a":19},{"l":"P","nm":"MAHARANI AULIYA","k":"X-8","a":20},{"l":"P","nm":"MEYLANI ADISTI PURINDA","k":"X-8","a":21},{"l":"L","nm":"MIESHIAN WIJAYA","k":"X-8","a":22},{"l":"L","nm":"MOH RIZKI FEBRIANSYAH","k":"X-8","a":23},{"l":"L","nm":"MUHAMMAD RIZQI AL FIANSYAH","k":"X-8","a":24},{"l":"P","nm":"NAYLA KIRANA ZHAFIRA NURCAHYA","k":"X-8","a":25},{"l":"P","nm":"NUR KHOLIFAH","k":"X-8","a":26},{"l":"P","nm":"PUTRI FAIZAH","k":"X-8","a":27},{"l":"L","nm":"RAED DEWA RAMADHANI","k":"X-8","a":28},{"l":"P","nm":"REVALINA MEISA MAYA ANGGRAINI","k":"X-8","a":29},{"l":"L","nm":"RHASYID NURSYAHPUTRA","k":"X-8","a":30},{"l":"P","nm":"SEKAR PUTRI RAHAYU","k":"X-8","a":31},{"l":"P","nm":"SITI NUR FADILA","k":"X-8","a":32},{"l":"L","nm":"TEGAR FEBRIAN SANTOSO","k":"X-8","a":33},{"l":"P","nm":"VIRANITA SHALLIMATUR RAHMA","k":"X-8","a":34},{"l":"P","nm":"ZULIANA LAILATUR ROHMAH","k":"X-8","a":35},{"l":"P","nm":"ADILLA AURELLIA PUTRI","k":"X-9","a":1},{"l":"L","nm":"AGENG TONI PUTRA","k":"X-9","a":2},{"l":"P","nm":"ALTAFUNISYA RIASENO RACHMADHANI","k":"X-9","a":3},{"l":"L","nm":"ANDREAN OKTAVIANO","k":"X-9","a":4},{"l":"P","nm":"AQILA RAHMATU DZAKIYAH","k":"X-9","a":5},{"l":"P","nm":"AUREL IZZATUR ROHMAH","k":"X-9","a":6},{"l":"P","nm":"AZALIA ZETTA FAYOLA","k":"X-9","a":7},{"l":"L","nm":"BARAKA MADYA UTAMA","k":"X-9","a":8},{"l":"P","nm":"CELINE NAYA TIMOTHY","k":"X-9","a":9},{"l":"L","nm":"DWI ANDIKA","k":"X-9","a":10},{"l":"P","nm":"ELYSA SANTIKA PUTRI","k":"X-9","a":11},{"l":"L","nm":"FARIS RIZKI ANANDA","k":"X-9","a":12},{"l":"P","nm":"FIRANA EKA NUR OKTAVIA","k":"X-9","a":13},{"l":"L","nm":"HAFIZ DZAKIY AL FURQON","k":"X-9","a":14},{"l":"P","nm":"IKA FITRIA HAYUNING TYAS","k":"X-9","a":15},{"l":"P","nm":"KANAYA ARLISTA PUTRI","k":"X-9","a":16},{"l":"L","nm":"KHABIB AUZAI KHUMAIDI","k":"X-9","a":17},{"l":"P","nm":"KHARISMA DWI MIFTAKHULIYA","k":"X-9","a":18},{"l":"P","nm":"MAHINU AZILIA NAZWA","k":"X-9","a":19},{"l":"P","nm":"MIFTAKHUL JANNAH","k":"X-9","a":20},{"l":"L","nm":"MIRWAIZI NEKEREIN","k":"X-9","a":21},{"l":"L","nm":"MOHAMMAD ARIF RACHMAN","k":"X-9","a":22},{"l":"L","nm":"MUHAMMAD SYAHDAN PANDU SASONGKO","k":"X-9","a":23},{"l":"P","nm":"NAZWA CHAYRIYA CHALIDA","k":"X-9","a":24},{"l":"P","nm":"NUR RITA","k":"X-9","a":25},{"l":"P","nm":"QUEENARA AGISTYA RAMADHANI","k":"X-9","a":26},{"l":"L","nm":"RAFA SEPTIANO FERNANDA","k":"X-9","a":27},{"l":"P","nm":"REZTIKA ANINDITA PUTRI","k":"X-9","a":28},{"l":"L","nm":"RHAVA SURYA PRABAMUKTI","k":"X-9","a":29},{"l":"P","nm":"SEPTIFANI AYU FAUZIA","k":"X-9","a":30},{"l":"P","nm":"SITI MAISAROH","k":"X-9","a":31},{"l":"P","nm":"SOFIATUZ SAADA","k":"X-9","a":32},{"l":"L","nm":"TENGKU IBRAHIM ARIFIN","k":"X-9","a":33},{"l":"P","nm":"VIRCA SUKMA NINGRUM","k":"X-9","a":34},{"l":"P","nm":"CLARISA KINTAN AYU WINATA","k":"X-10","a":1},{"l":"P","nm":"ADINDA SULISRIAWATI","k":"X-10","a":2},{"l":"L","nm":"AHMAD FURQON NUR ROHMAN","k":"X-10","a":3},{"l":"P","nm":"ALYA GALUH PERMANDHANI","k":"X-10","a":4},{"l":"L","nm":"ANGGI PRATAMA","k":"X-10","a":5},{"l":"P","nm":"ARDIANTI PRAMESTI","k":"X-10","a":6},{"l":"P","nm":"AUREL VALLENCIA PUTRI","k":"X-10","a":7},{"l":"P","nm":"AZHARA VIDYA PUTRI","k":"X-10","a":8},{"l":"L","nm":"BIMA MAHAR RAMADHAN","k":"X-10","a":9},{"l":"P","nm":"CHEISMELDA JANNATI FIRDAUSAH","k":"X-10","a":10},{"l":"P","nm":"DEWINA REVIKA PUTRI","k":"X-10","a":11},{"l":"L","nm":"DWI PUTRA ARJUNA","k":"X-10","a":12},{"l":"P","nm":"ENJEL PUTRI INTANI","k":"X-10","a":13},{"l":"L","nm":"FATIH ATAYA MAULANA HAQIQI","k":"X-10","a":14},{"l":"P","nm":"FITRI DEWI NURAINI","k":"X-10","a":15},{"l":"L","nm":"HASBI DWI PUTRA","k":"X-10","a":16},{"l":"P","nm":"IMELDA ZAHFANIA KINTANI","k":"X-10","a":17},{"l":"P","nm":"KANIA AURELY PUTRI","k":"X-10","a":18},{"l":"L","nm":"KIM YUDDA PRATAMA","k":"X-10","a":19},{"l":"P","nm":"KINANTI PUTRI ISNAINI","k":"X-10","a":20},{"l":"P","nm":"MARISTA ALFIANINGTYAS","k":"X-10","a":21},{"l":"L","nm":"MOCH NIZAM ZULMY","k":"X-10","a":22},{"l":"L","nm":"MOHAMMAD IBNU MUNIR RAMADHAN","k":"X-10","a":23},{"l":"L","nm":"MUHAMMAD VABIO ALI SYAHBANA","k":"X-10","a":24},{"l":"P","nm":"NABILLA IVANA DELIANA","k":"X-10","a":25},{"l":"P","nm":"NEVI FATMA PUTRI","k":"X-10","a":26},{"l":"P","nm":"NUR SYAFIKA NOVIANDITA","k":"X-10","a":27},{"l":"P","nm":"QURROTU A'IN MELANDA","k":"X-10","a":28},{"l":"L","nm":"RAFAUL PANDU ISMAIL","k":"X-10","a":29},{"l":"L","nm":"RICKO ARBI MARTDYANTO","k":"X-10","a":30},{"l":"P","nm":"RITA AMELLIA","k":"X-10","a":31},{"l":"P","nm":"SERLY AVRELIA NUR AINI","k":"X-10","a":32},{"l":"P","nm":"TIARA LARASATI","k":"X-10","a":33},{"l":"P","nm":"VIVIN ILVIANA AFIN ANNISA","k":"X-10","a":34},{"l":"L","nm":"WAHYU NURDIANTO","k":"X-10","a":35}];
+
+/* ===================== BANK SOAL (dari modul) ===================== */
+const POS = [
+ {id:1, c:"var(--p1)", name:"Individu, Status & Peran", desc:"Bagian A: individu, status, peran, identitas sosial", items:[
+  {t:"mc",q:"Secara etimologi, kata individu (individium) berarti…",o:["Tidak dapat dibagi","Makhluk yang hidup berkelompok","Manusia yang bermasyarakat","Pribadi yang berperan"],e:"Individu berasal dari kata individium yang berarti tidak dapat dibagi, yaitu satuan terkecil yang sangat terbatas.",s:"A.1"},
+  {t:"mc",q:"Empat kelengkapan hidup individu menurut konsep sosiologis adalah…",o:["Raga, rasa, rasio, dan rukun","Raga, jiwa, akal, dan budi","Rasa, karsa, cipta, dan karya","Akal, nafsu, hati, dan raga"],e:"Individu dilengkapi raga, rasa, rasio (akal pikiran), dan rukun (pergaulan hidup).",s:"A.1"},
+  {t:"mc",q:"Unsur kelengkapan individu yang membantu manusia membentuk kelompok sosial atau masyarakat adalah…",o:["Rukun","Raga","Rasa","Rasio"],e:"Rukun adalah bentuk sosialisasi dan hidup berdampingan secara harmonis. Rukunlah yang membantu manusia membentuk kelompok sosial.",s:"A.1"},
+  {t:"mc",q:"Rina terpilih menjadi ketua OSIS setelah berkampanye dan memenangkan pemilihan. Status yang dimiliki Rina termasuk…",o:["Achieved status","Ascribed status","Assigned status","Social status"],e:"Achieved status diperoleh melalui usaha yang disengaja, seperti ketua OSIS, kepala desa, dokter, atau guru.",s:"A.3"},
+  {t:"mc",q:"Seorang anak keturunan keraton Jawa sejak lahir bergelar Raden Mas. Gelar itu termasuk…",o:["Ascribed status","Achieved status","Assigned status","Peran sosial"],e:"Ascribed status diperoleh otomatis berdasarkan keturunan atau kelahiran, tanpa usaha.",s:"A.3"},
+  {t:"mc",q:"Tokoh yang membagi status menjadi ascribed, achieved, dan assigned berdasarkan cara memperolehnya adalah…",o:["Ralph Linton","Soerjono Soekanto","Henri Tajfel","Emile Durkheim"],e:"Pembagian tiga macam status berdasarkan cara memperolehnya dikemukakan Ralph Linton.",s:"A.3"},
+  {t:"mc",q:"Pengertian peran yang paling tepat adalah…",o:["Perilaku yang diharapkan pihak lain dalam melaksanakan hak dan kewajiban sesuai status","Kedudukan seseorang dalam hubungannya dengan masyarakat","Gelar yang diberikan masyarakat kepada orang berjasa","Konsep diri yang berasal dari keanggotaan kelompok"],e:"Peran adalah perilaku yang diharapkan pihak lain dalam melaksanakan hak dan kewajiban sesuai status. Pilihan kedua adalah pengertian status.",s:"A.3"},
+  {t:"mc",q:"Menurut modul, arti penting peran bagi individu adalah…",o:["Mampu mengatur perilaku agar sesuai dengan kelompoknya","Menentukan keturunan seseorang","Menghapus perbedaan antarindividu","Membuat seseorang tidak membutuhkan orang lain"],e:"Arti penting peran adalah mampu mengatur perilaku, sehingga seseorang dapat menyesuaikan perilakunya dengan orang-orang dalam kelompoknya.",s:"A.3"},
+  {t:"mc",q:"Pak Darto adalah ketua RT. Ia menyampaikan informasi dari kelurahan dan menampung aspirasi warga. Kegiatan menampung aspirasi warga merupakan…",o:["Peran Pak Darto","Status Pak Darto","Identitas sosial Pak Darto","Ascribed status Pak Darto"],e:"Ketua RT adalah statusnya (posisi), sedangkan menampung aspirasi warga adalah perannya (perilaku yang menyertai posisi itu).",s:"A.3"},
+  {t:"mc",q:"Identitas sosial sebagai “apa yang kita miliki bersama dengan beberapa orang, dan apa yang membedakan kita dengan orang lain” dikemukakan oleh…",o:["Barker","Tajfel","Hogg dan Abraham","Ralph Linton"],e:"Itu definisi Barker. Tajfel menekankan konsep diri dari keanggotaan kelompok; Hogg dan Abraham menekankan rasa keterkaitan, peduli, dan bangga.",s:"A.4"},
+  {t:"mc",q:"Menurut Hogg dan Abraham, identitas sosial adalah rasa keterkaitan, peduli, dan bangga yang berasal dari keanggotaan sosial…",o:["Tanpa harus memiliki hubungan personal","Yang hanya terbentuk dalam keluarga","Yang diwariskan melalui keturunan","Yang ditetapkan oleh lembaga hukum"],e:"Hogg dan Abraham: rasa keterkaitan, peduli, dan bangga dari pengetahuan tentang keanggotaan sosial, tanpa harus memiliki hubungan personal.",s:"A.4"},
+  {t:"tf",q:"Status dan peran tidak saling berkaitan, karena status adalah urusan pribadi sedangkan peran urusan masyarakat.",a:false,e:"Status dan peran saling berkaitan. Status adalah posisinya, peran adalah perilaku yang menyertai posisi itu.",s:"A.3"},
+  {t:"tf",q:"Assigned status diperoleh karena penghargaan atau kepercayaan masyarakat, misalnya gelar pahlawan bagi orang yang berjasa.",a:true,e:"Benar. Assigned status diperoleh melalui penghargaan, kepercayaan, atau mandat dari masyarakat.",s:"A.3"},
+  {t:"tf",q:"Hubungan sosial adalah hubungan timbal balik antarindividu yang saling memengaruhi dengan dasar kesadaran untuk saling menolong.",a:true,e:"Benar, itu pengertian hubungan sosial dalam modul. Contohnya berkumpul dengan keluarga dan jual beli di pasar.",s:"A.5"},
+  {t:"tf",q:"Perbedaan antarindividu boleh dijadikan alasan untuk bersikap diskriminatif.",a:false,e:"Perbedaan justru membuat kita bisa bekerja sama: kelebihan seseorang menutupi kekurangan orang lain. Perbedaan tidak boleh membuat kita diskriminatif.",s:"A.1"},
+  {t:"tf",q:"Seseorang dapat memiliki bermacam-macam peran dari pola-pola pergaulan hidupnya.",a:true,e:"Benar. Misalnya seseorang bisa menjadi anak di rumah, siswa di sekolah, dan anggota karang taruna di kampungnya.",s:"A.3"},
+  {t:"sort",q:"Kelompokkan contoh berikut ke jenis status menurut Ralph Linton.",b:["Ascribed","Achieved","Assigned"],i:[["Gelar Raden Ayu pada keturunan keraton",0],["Kepala desa",1],["Dokter",1],["Gelar pahlawan bagi orang yang berjasa",2],["Kepala sekolah",1],["Jenis kelamin yang dibawa sejak lahir",0]],e:"Ascribed: dari kelahiran/keturunan. Achieved: dari usaha yang disengaja. Assigned: dari penghargaan atau mandat masyarakat.",s:"A.3"},
+  {t:"sort",q:"Mana yang merupakan status, dan mana yang merupakan peran?",b:["Status","Peran"],i:[["Guru",0],["Mendidik dan memberi contoh pelaksanaan norma",1],["Siswa",0],["Belajar dan berdiskusi untuk mendapat ilmu",1],["Orang tua",0],["Menasihati anak dan membentuk karakternya",1]],e:"Status adalah posisi (guru, siswa, orang tua). Peran adalah perilaku dan tanggung jawab yang menyertai posisi itu.",s:"A.3"}
+ ]},
+ {id:2, c:"var(--p2)", name:"Interaksi Sosial", desc:"Bagian B: syarat, faktor pendorong, bentuk interaksi", items:[
+  {t:"mc",q:"Menurut Soerjono Soekanto, interaksi sosial hanya dapat berlangsung bila ada…",o:["Kontak sosial dan komunikasi","Imitasi dan sugesti","Kerja sama dan persaingan","Status dan peran"],e:"Dua syarat interaksi sosial menurut Soerjono Soekanto adalah kontak sosial dan komunikasi.",s:"B.3"},
+  {t:"mc",q:"Kata kontak berasal dari con/cum dan tango. Secara harfiah artinya…",o:["Saling menyentuh","Saling bertindak","Saling meniru","Saling berbicara"],e:"Con/cum berarti bersama-sama dan tango berarti menyentuh. Namun dalam sosiologi, kontak tidak harus bersentuhan fisik.",s:"B.3"},
+  {t:"mc",q:"Dimas menelepon video kakeknya yang tinggal di luar kota. Berdasarkan caranya, kontak ini termasuk…",o:["Kontak tidak langsung (sekunder)","Kontak langsung (primer)","Kontak negatif","Kontak kelompok dengan kelompok"],e:"Kontak tidak langsung memerlukan perantara (media), misalnya telepon, HP, atau internet.",s:"B.3"},
+  {t:"mc",q:"Pertandingan bola basket antara dua tim merupakan contoh kontak sosial berbentuk…",o:["Kelompok dengan kelompok","Individu dengan individu","Individu dengan kelompok","Kontak tidak langsung"],e:"Dua tim adalah dua kelompok, sehingga bentuk kontaknya kelompok dengan kelompok.",s:"B.3"},
+  {t:"mc",q:"Tania sangat yakin Dokter Joni hebat, sehingga ia patuh pada nasihatnya tanpa berpikir panjang dan merasa sembuh. Faktor pendorong interaksi ini adalah…",o:["Sugesti","Imitasi","Simpati","Motivasi"],e:"Sugesti adalah pemberian pengaruh yang diikuti tanpa dikritisi. Pemberi sugesti biasanya orang yang berwibawa.",s:"B.4"},
+  {t:"mc",q:"Arman sangat mengagumi Presiden Soekarno lalu meniru penampilan, pola pikir, hingga prinsip hidupnya. Faktor ini disebut…",o:["Identifikasi","Imitasi","Empati","Sugesti"],e:"Identifikasi adalah keinginan menjadi sama secara menyeluruh dengan orang yang diidolakan. Imitasi hanya meniru bagian tertentu.",s:"B.4"},
+  {t:"mc",q:"Mira merasa iba pada korban bencana, lalu menggalang dana untuk membantu mereka. Faktor yang paling tepat adalah…",o:["Empati","Simpati","Identifikasi","Imitasi"],e:"Empati berlanjut ke tindakan nyata, sedangkan simpati berhenti di perasaan.",s:"B.4"},
+  {t:"mc",q:"Dian rajin belajar karena ingin meraih penghargaan juara 1 lomba cerdas cermat. Ini contoh…",o:["Motivasi ekstrinsik","Motivasi intrinsik","Sugesti massal","Simpati"],e:"Motivasi ekstrinsik datang dari luar diri, misalnya penghargaan, orang lain, atau kelompok.",s:"B.4"},
+  {t:"mc",q:"Dua pihak yang bersengketa meminta pihak ketiga yang netral untuk membantu mencari jalan damai. Bentuk akomodasi ini disebut…",o:["Mediasi","Arbitrase","Koersi","Ajudikasi"],e:"Mediasi melibatkan pihak ketiga yang netral. Arbitrase: pihak ketiga yang memutuskan. Ajudikasi: lewat pengadilan.",s:"B.5"},
+  {t:"mc",q:"Penyelesaian konflik melalui pengadilan disebut…",o:["Ajudikasi","Konsiliasi","Kompromi","Toleransi"],e:"Ajudikasi adalah penyelesaian konflik melalui pengadilan.",s:"B.5"},
+  {t:"mc",q:"Perbedaan utama asimilasi dan akulturasi adalah…",o:["Asimilasi menghasilkan budaya baru, akulturasi mempertahankan ciri khas budaya asal","Asimilasi termasuk disosiatif, akulturasi termasuk asosiatif","Asimilasi terjadi lewat paksaan, akulturasi lewat pengadilan","Asimilasi hanya antarindividu, akulturasi antarkelompok"],e:"Pada asimilasi budaya asal melebur menjadi budaya baru. Pada akulturasi, ciri khas budaya masing-masing tetap ada.",s:"B.5"},
+  {t:"mc",q:"Dalam unsur komunikasi, tanggapan dari penerima pesan terhadap isi pesan disebut…",o:["Umpan balik (feedback)","Efek","Media","Komunikan"],e:"Respons atau umpan balik adalah tanggapan penerima. Efek adalah perubahan pada komunikan setelah menerima pesan.",s:"B.3"},
+  {t:"tf",q:"Dalam sosiologi, kontak sosial harus selalu berupa sentuhan fisik.",a:false,e:"Kontak tidak harus bersentuhan fisik. Kontak bisa terjadi lewat telepon, surat, atau internet.",s:"B.3"},
+  {t:"tf",q:"Menggelengkan kepala dan melambaikan tangan termasuk komunikasi nonverbal.",a:true,e:"Benar. Komunikasi nonverbal memakai gerak tubuh, bahasa isyarat, atau sikap tertentu.",s:"B.3"},
+  {t:"tf",q:"Menurut Gillin, bentuk proses sosial terdiri atas proses asosiatif dan disosiatif.",a:true,e:"Benar. Asosiatif mengarah pada persatuan, disosiatif mengarah pada perpecahan atau konflik.",s:"B.5"},
+  {t:"tf",q:"Kompromi adalah bentuk akomodasi dengan cara tekanan atau paksaan.",a:false,e:"Tekanan atau paksaan adalah koersi. Kompromi berarti masing-masing pihak mengurangi tuntutannya.",s:"B.5"},
+  {t:"sort",q:"Kelompokkan bentuk interaksi berikut: asosiatif atau disosiatif?",b:["Asosiatif","Disosiatif"],i:[["Kerja sama",0],["Persaingan (kompetisi)",1],["Akulturasi",0],["Kontravensi",1],["Kompromi",0],["Pertentangan (konflik)",1],["Koalisi",0]],e:"Asosiatif: kerja sama, akomodasi, asimilasi, akulturasi. Disosiatif: kontravensi, persaingan, pertentangan.",s:"B.5"},
+  {t:"sort",q:"Kelompokkan contoh berikut menurut cara kontaknya.",b:["Kontak langsung","Kontak tidak langsung"],i:[["Berjabat tangan",0],["Mengirim surat",1],["Tersenyum kepada teman",0],["Meminang lewat perantara orang lain",1],["Berbicara dengan bahasa isyarat",0],["Mengobrol lewat HP",1]],e:"Kontak langsung tanpa perantara. Kontak tidak langsung memakai perantara benda (telepon, surat) atau manusia.",s:"B.3"}
+ ]},
+ {id:3, c:"var(--p3)", name:"Kelompok Sosial", desc:"Bagian C–D: pembentukan dan tipe-tipe kelompok", items:[
+  {t:"mc",q:"Naluri manusia untuk selalu hidup bersama orang lain disebut…",o:["Gregariousness","Zoon politicon","Etnosentrisme","Gemeinschaft"],e:"Naluri hidup dengan orang lain disebut gregariousness. Zoon politicon adalah sebutan manusia sebagai makhluk sosial.",s:"C.4"},
+  {t:"mc",q:"Urutan tahap pembentukan kelompok menurut Bruce W. Tuckman adalah…",o:["Forming, storming, norming, performing, adjourning","Forming, norming, storming, performing, adjourning","Storming, forming, norming, adjourning, performing","Norming, forming, performing, storming, adjourning"],e:"Pembentukan, menghadapi konflik, pembentukan struktur, produktivitas, lalu pembubaran.",s:"C.4"},
+  {t:"mc",q:"Kelompok kerja kelasmu mulai sering berdebat karena perbedaan pendapat dan cara kerja. Menurut Tuckman, kelompok sedang berada di tahap…",o:["Storming","Forming","Norming","Performing"],e:"Storming adalah tahap menghadapi konflik karena perbedaan pendapat, cara kerja, dan tujuan. Diperlukan toleransi.",s:"C.4"},
+  {t:"mc",q:"Tahap ketika kelompok mulai membentuk aturan, peran, status, dan prosedur kerja disebut…",o:["Norming","Storming","Performing","Adjourning"],e:"Norming adalah tahap pembentukan struktur: persepsi disamakan dan terbentuk aturan, peran, serta status.",s:"C.4"},
+  {t:"mc",q:"Menurut Charles H. Cooley, keluarga dan kelompok pertemanan termasuk…",o:["Kelompok primer","Kelompok sekunder","Kelompok formal","Kelompok statistik"],e:"Kelompok primer ditandai pergaulan intim dan tatap muka (face to face group), seperti keluarga dan sahabat.",s:"D.1"},
+  {t:"mc",q:"Tokoh yang mengkritik Cooley lalu menjelaskan konsep kelompok sekunder adalah…",o:["Ellsworth Farris","W.G. Sumner","Ferdinand Tonnies","Robert Bierstedt"],e:"Ellsworth Farris mengkritik Cooley yang hanya menjelaskan kelompok primer.",s:"D.1"},
+  {t:"mc",q:"Menurut Durkheim, masyarakat yang sudah mengenal pembagian kerja dan memakai hukum perdata (sanksi ganti rugi) memiliki…",o:["Solidaritas organik","Solidaritas mekanik","Kesadaran kolektif","Gemeinschaft of mind"],e:"Solidaritas organik: ada pembagian kerja, unsur saling bergantung, hukum restitutif. Solidaritas mekanik memakai hukum pidana.",s:"D.1"},
+  {t:"mc",q:"Kelompok arisan dan rukun tetangga yang terbentuk karena tempat tinggal berdekatan termasuk…",o:["Gemeinschaft of place","Gemeinschaft by blood","Gemeinschaft of mind","Gesellschaft"],e:"Gemeinschaft of place terbentuk karena kedekatan tempat tinggal sehingga warganya saling menolong.",s:"D.1"},
+  {t:"mc",q:"Sikap menilai kebudayaan lain dengan ukuran kebudayaan sendiri disebut…",o:["Etnosentrisme","Stereotip","In-group feeling","Akulturasi"],e:"Etnosentrisme sering disertai stereotip, yaitu anggapan yang mengejek kelompok luar.",s:"D.1"},
+  {t:"mc",q:"Bayu gagal menjadi polisi, tetapi ia tetap bertingkah laku layaknya polisi. Bagi Bayu, kepolisian adalah…",o:["Reference group (kelompok acuan)","Membership group","Out-group","Kelompok primer"],e:"Reference group menurut Merton menjadi acuan perilaku bagi individu yang tidak tercatat sebagai anggotanya.",s:"D.1"},
+  {t:"mc",q:"Orang-orang yang mengantre karcis atau menunggu bus termasuk bentuk kerumunan…",o:["Inconvenient aggregations","Panic crowds","Formal audiences","Acting mobs"],e:"Inconvenient aggregations: kehadiran orang lain justru menghalangi, seperti saat mengantre.",s:"D.2"},
+  {t:"mc",q:"Kelompok tidak teratur yang interaksinya tidak langsung lewat media massa dan cenderung berpikir rasional adalah…",o:["Publik","Kerumunan","Massa","Komunitas"],e:"Publik berinteraksi lewat surat kabar, radio, atau televisi dan cenderung rasional. Massa kurang kritis dan mudah percaya.",s:"D.2"},
+  {t:"mc",q:"Menurut Robert Bierstedt, “penduduk usia 10–15 tahun di sebuah kecamatan” merupakan contoh kelompok…",o:["Statistik","Asosiasi","Sosial","Kemasyarakatan"],e:"Kelompok statistik bukan organisasi, tanpa hubungan sosial, dan tanpa kesadaran sejenis.",s:"D.1"},
+  {t:"tf",q:"Kelompok sosial cenderung statis dan tidak pernah berubah.",a:false,e:"Kelompok sosial cenderung tidak statis, selalu berkembang dan berubah.",s:"C.5"},
+  {t:"tf",q:"Masyarakat Cibaduyut di Bandung yang hampir semuanya perajin sepatu adalah contoh komunitas ekonomi.",a:true,e:"Benar. Komunitas ekonomi berorientasi pada kegiatan ekonomi, seperti industri rumahan sepatu di Cibaduyut.",s:"D.1"},
+  {t:"tf",q:"Kelompok informal memiliki struktur organisasi yang jelas dan peraturan tertulis.",a:false,e:"Kelompok informal tidak punya struktur dan peraturan tertulis. Yang punya peraturan tegas adalah kelompok formal.",s:"D.1"},
+  {t:"tf",q:"Salah satu syarat kelompok sosial adalah adanya kesadaran sebagai anggota kelompok.",a:true,e:"Benar. Kesadaran ini menimbulkan rasa memiliki dan memelihara keutuhan kelompok.",s:"C.2"},
+  {t:"sort",q:"Kelompokkan contoh berikut: kelompok primer atau sekunder?",b:["Primer","Sekunder"],i:[["Keluarga",0],["Koperasi",1],["Kelompok sahabat",0],["PGRI",1],["Kelompok kekerabatan",0],["Penjual dan pembeli di pasar",1]],e:"Primer: sedikit anggota, akrab, langgeng. Sekunder: banyak anggota, formal, tidak permanen.",s:"D.1"},
+  {t:"sort",q:"Kelompokkan menurut Ferdinand Tonnies: paguyuban atau patembayan?",b:["Paguyuban (gemeinschaft)","Patembayan (gesellschaft)"],i:[["Keluarga",0],["Dunia industri",1],["Kelompok arisan warga",0],["Organisasi politik",1],["Ikatan batin yang kuat dan kekal",0],["Hubungan kontrak yang bersifat sementara",1]],e:"Paguyuban: ikatan batin kuat, alamiah, kekal. Patembayan: ikatan lahir, kontrak, rasional, sementara.",s:"D.1"},
+  {t:"sort",q:"Ciri berikut milik kerumunan, publik, atau massa?",b:["Kerumunan","Publik","Massa"],i:[["Interaksi langsung, spontan, dan singkat",0],["Interaksi lewat media massa",1],["Kurang kritis dan mudah percaya",2],["Orang-orang menonton tukang sulap",0],["Cenderung berpikir rasional",1],["Anonim, heterogen, dan tidak berinteraksi",2]],e:"Kerumunan: satu tempat, sementara. Publik: tersebar, lewat media, rasional. Massa: tanpa interaksi, mudah percaya.",s:"D.2"}
+ ]},
+ {id:4, c:"var(--p4)", name:"Lembaga Sosial", desc:"Bagian E: pengertian, karakteristik, fungsi, macam", items:[
+  {t:"mc",q:"Menurut Soerjono Soekanto, lembaga sosial adalah…",o:["Himpunan norma dari segala tingkatan yang berkisar pada suatu kebutuhan pokok","Sistem peraturan dan adat istiadat yang mempertahankan nilai penting","Prosedur yang membuat perbuatan manusia ditekan oleh pola tertentu","Sekelompok orang yang berinteraksi sesuai pola yang matang"],e:"Pilihan kedua adalah definisi Mayor Polak, ketiga Peter L. Berger, keempat definisi kelompok sosial menurut Merton.",s:"E.1"},
+  {t:"mc",q:"Fungsi lembaga sosial yang diharapkan oleh masyarakat disebut fungsi…",o:["Manifest","Laten","Restitutif","Represif"],e:"Fungsi manifest diharapkan masyarakat, sedangkan fungsi laten tidak tampak dari luar tetapi memiliki makna.",s:"E.3"},
+  {t:"mc",q:"Berikut yang BUKAN karakteristik lembaga sosial adalah…",o:["Usianya singkat dan berganti setiap generasi","Memiliki simbol sendiri","Memiliki tata tertib dan tradisi","Memiliki kekebalan atau daya tahan"],e:"Lembaga sosial justru berusia lama dan turun dari generasi ke generasi.",s:"E.2"},
+  {t:"mc",q:"Melindungi hak individu dan menegakkan keadilan adalah fungsi lembaga…",o:["Hukum","Ekonomi","Keluarga","Agama"],e:"Lembaga hukum mengatur perilaku, melindungi hak individu, menegakkan keadilan, dan memberi sanksi.",s:"E.4"},
+  {t:"mc",q:"Transfer ilmu pengetahuan dan mengembangkan cara berpikir ilmiah adalah fungsi lembaga…",o:["Pendidikan","Keluarga","Hukum","Ekonomi"],e:"Lembaga pendidikan (formal, nonformal, informal) mentransfer ilmu, mengembangkan potensi, dan melestarikan budaya.",s:"E.4"},
+  {t:"mc",q:"Pernyataan yang tepat tentang keluarga menurut modul adalah…",o:["Keluarga adalah kelompok primer sekaligus lembaga sosial","Keluarga adalah kelompok sekunder sekaligus asosiasi","Keluarga termasuk kelompok sosial tidak teratur","Keluarga hanya memiliki fungsi ekonomi"],e:"Keluarga adalah kelompok primer sekaligus lembaga sosial. Sekolah adalah kelompok sekunder sekaligus lembaga pendidikan.",s:"E.4"},
+  {t:"mc",q:"“Sistem tata kelakuan dan hubungan yang berpusat pada aktivitas untuk memenuhi kebutuhan khusus manusia” adalah definisi lembaga sosial menurut…",o:["Koentjaraningrat","Peter L. Berger","Mayor Polak","Soerjono Soekanto"],e:"Definisi ini dikemukakan Koentjaraningrat.",s:"E.1"},
+  {t:"tf",q:"Lembaga sosial memiliki simbol, alat kelengkapan, dan ideologi sendiri.",a:true,e:"Benar. Ketiganya termasuk karakteristik lembaga sosial.",s:"E.2"},
+  {t:"tf",q:"Menetapkan harga jual barang dan jasa adalah fungsi lembaga agama.",a:false,e:"Itu fungsi lembaga ekonomi. Lembaga agama menjadi pedoman hidup dan memberi identitas.",s:"E.4"},
+  {t:"tf",q:"Fungsi laten adalah fungsi lembaga yang tidak tampak dari luar, tetapi tetap memiliki makna.",a:true,e:"Benar, itulah pengertian fungsi laten.",s:"E.3"},
+  {t:"sort",q:"Fungsi berikut milik lembaga sosial yang mana?",b:["Keluarga","Pendidikan","Agama","Ekonomi","Hukum"],i:[["Reproduksi dan cinta kasih",0],["Transaksi jual beli",3],["Memberi sanksi bagi pelanggar",4],["Tata cara berkomunikasi dengan Tuhan",2],["Melestarikan kebudayaan",1],["Regulasi barang dan jasa",3]],e:"Setiap lembaga berpusat pada kebutuhan pokok tertentu: keturunan, ilmu, spiritual, ekonomi, dan keadilan.",s:"E.4"}
+ ]}
+];
+
+
+const PICK = 6;           // soal pilihan ganda + benar/salah per pos
+const TIME = 25;          // detik per soal
+const LETTERS = ["A","B","C","D"];
+
+/* ===================== UTIL ===================== */
+const $ = s => document.querySelector(s);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SCREENS = ["scr-login","scr-admlogin","scr-admin","scr-start","scr-play","scr-break","scr-result"];
+function show(id){ SCREENS.forEach(s => $("#"+s).classList.toggle("hidden", s!==id)); $("#main").classList.toggle("wide", id==="scr-admin"); window.scrollTo({top:0}); }
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const KELAS = [...new Set(STUDENTS.map(x=>x.k))].sort((a,b)=>parseInt(a.split("-")[1])-parseInt(b.split("-")[1]));
+const sid = s => s.k + "-" + s.a;
+const findStudent = id => STUDENTS.find(s => sid(s) === String(id));
+const titleCase = s => s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+
+/* ===================== SESI SISWA ===================== */
+let ME = null;
+function renderLogin(){
+  const k = $("#lg-kelas"), n = $("#lg-nama");
+  k.innerHTML = `<option value="">Pilih kelas</option>` + KELAS.map(x=>`<option>${x}</option>`).join("");
+  n.innerHTML = `<option value="">Pilih kelas dulu</option>`; n.disabled = true; $("#lg-err").textContent = "";
+  k.onchange = () => {
+    const l = STUDENTS.filter(x=>x.k===k.value).sort((a,b)=>a.a-b.a);
+    n.innerHTML = `<option value="">${k.value?"Pilih namamu":"Pilih kelas dulu"}</option>` + l.map(x=>`<option value="${sid(x)}">${x.a}. ${esc(x.nm)}</option>`).join("");
+    n.disabled = !k.value; $("#lg-err").textContent = "";
+  };
+  show("scr-login");
+}
+$("#btn-login").onclick = () => {
+  const st = findStudent($("#lg-nama").value);
+  if (!st){ $("#lg-err").textContent = $("#lg-kelas").value ? "Pilih namamu dulu, ya." : "Pilih kelasmu dulu, ya."; return; }
+  store.set("jsp_session", {id:sid(st), at:Date.now()});
+  enter(st);
+};
+function enter(st){
+  ME = st;
+  $("#pl-name").textContent = titleCase(st.nm);
+  $("#pl-kelas").textContent = `· ${st.k} · absen ${st.a}`;
+  renderPosGrid(); show("scr-start"); Sync.flush();
+}
+$("#btn-logout").onclick = () => { store.del("jsp_session"); ME = null; renderLogin(); };
+
+/* ===================== KIRIM NILAI KE GOOGLE SHEETS ===================== */
+const OUTBOX = "jsp_outbox_v1";
+const Sync = {
+  q(){ return store.get(OUTBOX, []); },
+  busy:false,
+  send(rec){ const a = Sync.q(); a.push(rec); store.set(OUTBOX, a.slice(-300)); return Sync.flush(); },
+  flush(){
+    if (!SHEET_OK || Sync.busy) return Promise.resolve(false);
+    const a = Sync.q(); if (!a.length) return Promise.resolve(true);
+    Sync.busy = true;
+    return fetch(SHEET_URL, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(a)})
+      .then(() => { store.set(OUTBOX, Sync.q().slice(a.length)); return true; })
+      .catch(() => false)
+      .finally(() => { Sync.busy = false; if (Sync.q().length && navigator.onLine !== false) setTimeout(() => Sync.flush(), 5000); });
+  }
+};
+window.addEventListener("online", () => Sync.flush());
+
+/* ===================== STATE GAME ===================== */
+let S = null;
+const chosen = new Set([1,2,3,4]);
+
+function renderPosGrid(){
+  $("#posgrid").innerHTML = POS.map(p => `
+    <button class="pos" style="--c:${p.c}" data-id="${p.id}" aria-pressed="${chosen.has(p.id)}">
+      <span class="n">POS ${p.id}</span><span class="t">${p.name}</span><span class="d">${p.desc}</span>
+    </button>`).join("");
+  $("#posgrid").querySelectorAll(".pos").forEach(b => b.onclick = () => {
+    const id = +b.dataset.id; chosen.has(id) ? chosen.delete(id) : chosen.add(id); renderPosGrid();
+  });
+  const n = chosen.size;
+  $("#btn-start").disabled = n===0;
+  $("#start-info").textContent = n===0 ? "Pilih minimal satu pos." : `${n} pos, sekitar ${n*12} jawaban.`;
+}
+
+function buildRound(p){
+  const pool = shuffle(p.items.filter(x => x.t!=="sort")).slice(0, PICK);
+  const sorts = p.items.filter(x => x.t==="sort");
+  const sort = sorts[Math.floor(Math.random()*sorts.length)];
+  const qs = pool.map(x => x.t==="mc" ? {...x, opts:shuffle(x.o.map((t,i)=>({t, ok:i===0})))} : {...x});
+  qs.push({...sort, list:shuffle(sort.i)});
+  return qs;
+}
+
+function start(){
+  const posList = POS.filter(p => chosen.has(p.id));
+  S = {
+    name: titleCase(ME.nm), kelas: ME.k,
+    timer: $("#inp-timer").checked, t0: Date.now(),
+    rounds: posList.map(p => ({pos:p, qs:buildRound(p), right:0, total:0})),
+    r:0, q:0, score:0, streak:0, best:0, mistakes:[], answered:false, sortIdx:0, tick:null
+  };
+  show("scr-play"); renderQ();
+}
+
+/* ===================== MAIN ===================== */
+function round(){ return S.rounds[S.r]; }
+function curQ(){ return round().qs[S.q]; }
+function streakBonus(){ return Math.min(Math.max(S.streak-1,0),4)*10; }
+
+function hud(){
+  const R = round(), p = R.pos;
+  $("#hud-pos").textContent = `Pos ${p.id} · ${p.name}`;
+  $("#hud-pos").style.background = p.c;
+  $("#hud-prog").style.setProperty("--c", p.c);
+  $("#hud-prog i").style.width = (S.q / R.qs.length * 100) + "%";
+  $("#hud-count").textContent = `Soal ${S.q+1} dari ${R.qs.length} · Pos ${S.r+1} dari ${S.rounds.length}`;
+  $("#hud-score").textContent = S.score;
+  $("#hud-streak").textContent = S.streak;
+}
+
+function startTimer(){
+  stopTimer();
+  const bar = $("#timer");
+  if (!S.timer) { bar.classList.add("hidden"); return; }
+  bar.classList.remove("hidden","low");
+  S.left = TIME; const t0 = performance.now();
+  const fill = bar.querySelector("i");
+  S.tick = setInterval(() => {
+    S.left = Math.max(0, TIME - (performance.now()-t0)/1000);
+    fill.style.width = (S.left/TIME*100) + "%";
+    bar.classList.toggle("low", S.left < 6);
+    if (S.left <= 0) { stopTimer(); answer(null); }
+  }, 100);
+}
+function stopTimer(){ if (S && S.tick){ clearInterval(S.tick); S.tick=null; } }
+
+function renderQ(){
+  const q = curQ(); S.answered = false;
+  const card = $("#qcard"); card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop");
+  $("#q-feedback").innerHTML = ""; $("#btn-next").classList.add("hidden");
+  hud();
+  if (q.t==="mc"){
+    $("#q-type").textContent = "Pilihan ganda";
+    $("#q-text").textContent = q.q;
+    $("#q-body").innerHTML = `<div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(o.t)}</span></button>`).join("")}</div>`;
+    $("#q-body").querySelectorAll(".opt").forEach(b => b.onclick = () => answer(+b.dataset.i));
+    startTimer();
+  } else if (q.t==="tf"){
+    $("#q-type").textContent = "Benar atau salah?";
+    $("#q-text").textContent = q.q;
+    $("#q-body").innerHTML = `<div class="opts tf"><button class="opt" data-v="1">Benar</button><button class="opt" data-v="0">Salah</button></div>`;
+    $("#q-body").querySelectorAll(".opt").forEach(b => b.onclick = () => answer(b.dataset.v==="1"));
+    startTimer();
+  } else {
+    S.sortIdx = 0; q.res = [];
+    $("#timer").classList.add("hidden"); stopTimer();
+    $("#q-type").textContent = "Kelompokkan";
+    $("#q-text").textContent = q.q;
+    renderSort();
+  }
+}
+
+function renderSort(){
+  const q = curQ(), item = q.list[S.sortIdx];
+  const dots = q.list.map((_,i)=>`<span class="${i<S.sortIdx ? (q.res[i]?"ok":"no") : (i===S.sortIdx?"cur":"")}"></span>`).join("");
+  $("#q-body").innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="dots" aria-label="Item ${S.sortIdx+1} dari ${q.list.length}">${dots}</div>
+      <div class="sortitem">${esc(item[0])}</div>
+      <div class="buckets">${q.b.map((b,i)=>`<button class="bucket" data-i="${i}"><span class="muted" style="font-size:.75rem">${i+1}</span><br>${esc(b)}</button>`).join("")}</div>
+    </div>`;
+  $("#q-feedback").innerHTML = "";
+  $("#q-body").querySelectorAll(".bucket").forEach(b => b.onclick = () => sortAnswer(+b.dataset.i));
+}
+
+function sortAnswer(i){
+  if (S.answered) return;
+  const q = curQ(), item = q.list[S.sortIdx], ok = item[1]===i, R = round();
+  S.answered = true;
+  q.res[S.sortIdx] = ok; R.total++;
+  $("#q-body").querySelectorAll(".bucket").forEach((b,k)=>{ b.disabled = true; if (k===item[1]) b.classList.add("right"); else if (k===i) b.classList.add("wrong"); });
+  let pts = 0;
+  if (ok){ S.streak++; S.best=Math.max(S.best,S.streak); pts = 50 + streakBonus(); S.score += pts; R.right++; }
+  else { S.streak = 0; S.mistakes.push({pos:R.pos.name, q:`${q.q} “${item[0]}”`, your:q.b[i], right:q.b[item[1]], e:q.e, s:q.s}); }
+  const last = S.sortIdx === q.list.length-1;
+  $("#q-feedback").innerHTML = `<div class="feedback ${ok?"ok":"no"}"><strong>${ok?"Tepat!":"Belum tepat."} <span class="pts">${ok?`+${pts}`:""}</span></strong>
+    ${ok?"":`<span>“${esc(item[0])}” termasuk <b>${esc(q.b[item[1]])}</b>.</span>`}
+    ${last?`<span>${esc(q.e)}</span>`:""}<span class="src">Modul ${q.s}</span></div>`;
+  hud();
+  $("#btn-next").textContent = last ? "Lanjut" : "Item berikutnya";
+  $("#btn-next").classList.remove("hidden"); $("#btn-next").focus();
+}
+
+function answer(v){
+  if (S.answered) return;
+  stopTimer(); S.answered = true;
+  const q = curQ(), R = round(); R.total++;
+  let ok, yourText, rightText;
+  const btns = $("#q-body").querySelectorAll(".opt");
+  if (q.t==="mc"){
+    ok = v!==null && q.opts[v].ok;
+    btns.forEach((b,k)=>{ b.disabled=true; if (q.opts[k].ok) b.classList.add("right"); else if (k===v) b.classList.add("wrong"); });
+    yourText = v===null ? "(waktu habis)" : q.opts[v].t;
+    rightText = q.opts.find(o=>o.ok).t;
+  } else {
+    ok = v!==null && v===q.a;
+    btns.forEach(b=>{ b.disabled=true; const bv=b.dataset.v==="1"; if (bv===q.a) b.classList.add("right"); else if (bv===v) b.classList.add("wrong"); });
+    yourText = v===null ? "(waktu habis)" : (v?"Benar":"Salah");
+    rightText = q.a ? "Benar" : "Salah";
+  }
+  let pts = 0;
+  if (ok){
+    S.streak++; S.best=Math.max(S.best,S.streak); R.right++;
+    pts = 100 + (S.timer ? Math.round(S.left*2) : 0) + streakBonus(); S.score += pts;
+  } else {
+    S.streak = 0;
+    S.mistakes.push({pos:R.pos.name, q:q.q, your:yourText, right:rightText, e:q.e, s:q.s});
+  }
+  const head = ok ? "Tepat!" : (v===null ? "Waktu habis." : "Belum tepat.");
+  $("#q-feedback").innerHTML = `<div class="feedback ${ok?"ok":"no"}"><strong>${head} <span class="pts">${ok?`+${pts}`:""}</span></strong>
+    ${ok?"":`<span>Jawaban yang benar: <b>${esc(rightText)}</b></span>`}<span>${esc(q.e)}</span><span class="src">Modul ${q.s}</span></div>`;
+  hud();
+  $("#btn-next").textContent = "Lanjut";
+  $("#btn-next").classList.remove("hidden"); $("#btn-next").focus();
+}
+
+function next(){
+  if (!S.answered) return;
+  const q = curQ();
+  if (q.t==="sort" && S.sortIdx < q.list.length-1){ S.sortIdx++; S.answered=false; renderSort(); $("#btn-next").classList.add("hidden"); return; }
+  if (S.q < round().qs.length-1){ S.q++; renderQ(); return; }
+  const R = round();
+  if (S.r < S.rounds.length-1){
+    const pct = Math.round(R.right/R.total*100);
+    $("#br-tag").textContent = `Pos ${R.pos.id} selesai`; $("#br-tag").style.background = R.pos.c;
+    $("#br-title").textContent = `${R.pos.name}: ${R.right} dari ${R.total} benar`;
+    const nextP = S.rounds[S.r+1].pos;
+    $("#br-text").textContent = `${pct>=80?"Mantap, penguasaanmu sudah kuat.":pct>=60?"Cukup baik. Baca ulang pembahasan yang keliru nanti.":"Pos ini perlu dipelajari lagi."} Poin sementara ${S.score}. Berikutnya: Pos ${nextP.id}, ${nextP.name}.`;
+    show("scr-break"); $("#btn-continue").focus();
+  } else finish();
+}
+$("#btn-continue").onclick = () => { S.r++; S.q=0; show("scr-play"); renderQ(); };
+
+/* ===================== HASIL ===================== */
+function grade(p){
+  if (p>=90) return ["Sosiolog Andal","Luar biasa. Kamu menguasai hampir seluruh materi modul."];
+  if (p>=75) return ["Pengamat Tajam","Bagus. Sebagian besar konsep sudah kamu kuasai; perbaiki beberapa yang keliru."];
+  if (p>=60) return ["Penjelajah Muda","Lumayan. Pelajari ulang bagian modul yang ditandai di pembahasan."];
+  return ["Perlu Belajar Lagi","Jangan menyerah. Baca ulang modul, terutama pos dengan skor terendah, lalu main lagi."];
+}
+
+function finish(){
+  const right = S.rounds.reduce((a,r)=>a+r.right,0), total = S.rounds.reduce((a,r)=>a+r.total,0);
+  const pct = Math.round(right/total*100); const [badge,msg] = grade(pct);
+  S.result = {right,total,pct,badge};
+  $("#rs-who").textContent = `${S.name} · ${S.kelas}`;
+  $("#rs-pct").textContent = pct+"%";
+  $("#rs-score").textContent = S.score;
+  $("#rs-badge").textContent = badge;
+  $("#rs-msg").textContent = `${msg} Benar ${right} dari ${total} · beruntun terpanjang ${S.best}.`;
+  $("#rs-bars").innerHTML = S.rounds.map(r=>{ const p=Math.round(r.right/r.total*100); return `
+    <div class="bar" style="--c:${r.pos.c}"><span><b>Pos ${r.pos.id}</b> ${r.pos.name}</span><div class="track"><i style="width:${p}%"></i></div><span class="v">${r.right}/${r.total}</span></div>`; }).join("");
+  if (S.mistakes.length===0){
+    $("#rv-title").textContent = "Semua jawaban benar";
+    $("#rs-review").innerHTML = `<p class="muted">Tidak ada yang perlu dibahas ulang. Coba main lagi: soal akan diacak berbeda.</p>`;
+  } else {
+    $("#rv-title").textContent = `Bahas lagi ${S.mistakes.length} jawaban yang keliru`;
+    $("#rs-review").innerHTML = S.mistakes.map(m=>`
+      <details><summary>${esc(m.q)}</summary><div class="ans">
+        <span>Jawabanmu: <b style="color:var(--bad)">${esc(m.your)}</b></span>
+        <span>Seharusnya: <b style="color:var(--good)">${esc(m.right)}</b></span>
+        <span>${esc(m.e)}</span><span class="muted" style="font-size:.8rem">${esc(m.pos)} · Modul ${m.s}</span></div></details>`).join("");
+  }
+  $("#copy-msg").textContent = ""; $("#copy-fallback").classList.add("hidden");
+  show("scr-result");
+
+  // kirim ke rekap guru
+  const per = {}; S.rounds.forEach(r => per["p"+r.pos.id] = `${r.right}/${r.total}`);
+  const rec = Object.assign({waktu:Date.now(), kelas:ME.k, absen:ME.a, nama:ME.nm,
+    pos:S.rounds.map(r=>r.pos.id).join(", "), benar:right, total, persen:pct, poin:S.score, predikat:badge,
+    durasi:Math.round((Date.now()-S.t0)/1000), timer:S.timer}, per);
+  const box = $("#rs-sync");
+  if (!SHEET_OK){ box.className = "sync"; box.textContent = "Rekap guru belum diatur, jadi nilai belum terkirim. Gunakan tombol Salin hasil."; Sync.send(rec); return; }
+  box.className = "sync wait"; box.textContent = "Mengirim nilai ke rekap guru…";
+  Sync.send(rec).then(ok => {
+    if (ok && !Sync.q().length){ box.className = "sync ok"; box.textContent = "Nilai sudah terkirim ke rekap guru."; }
+    else { box.className = "sync wait"; box.textContent = "Belum tersambung ke internet. Nilai disimpan di perangkat ini dan dikirim otomatis saat online."; }
+  });
+}
+
+function resultText(){
+  const r = S.result;
+  const d = new Date().toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"});
+  return [`${GAME} (Sosiologi X)`,`Nama: ${ME.nm}`,`Kelas: ${ME.k} · Absen ${ME.a}`,`Waktu: ${d}`,
+    `Benar: ${r.right}/${r.total} (${r.pct}%) · Poin: ${S.score} · Predikat: ${r.badge}`,
+    ...S.rounds.map(x=>`- Pos ${x.pos.id} ${x.pos.name}: ${x.right}/${x.total}`)].join("\n");
+}
+$("#btn-copy").onclick = async () => {
+  const t = resultText();
+  try { await navigator.clipboard.writeText(t); $("#copy-msg").textContent = "Hasil tersalin."; }
+  catch(e){ const ta=$("#copy-fallback"); ta.value=t; ta.classList.remove("hidden"); ta.select(); $("#copy-msg").textContent = "Salin teks di bawah secara manual."; }
+};
+$("#btn-again").onclick = () => { renderPosGrid(); show("scr-start"); };
+
+/* ===================== GURU / ADMIN ===================== */
+let ADM_KEY = null;
+$("#btn-guru").onclick = () => { $("#adm-err").textContent = SHEET_OK ? "" : "Alamat Google Sheets belum diatur di game. Lihat README.md bagian Pengaturan."; $("#adm-pass").value=""; show("scr-admlogin"); $("#adm-pass").focus(); };
+$("#btn-admback").onclick = () => renderLogin();
+$("#adm-pass").addEventListener("keydown", e => { if (e.key==="Enter") $("#btn-admgo").click(); });
+$("#btn-admgo").onclick = () => {
+  const key = $("#adm-pass").value, err = $("#adm-err"), go = $("#btn-admgo");
+  if (!SHEET_OK){ err.textContent = "Alamat Google Sheets belum diatur di game. Lihat README.md bagian Pengaturan."; return; }
+  if (!key){ err.textContent = "Tulis sandi admin."; return; }
+  go.disabled = true; err.textContent = "Memuat rekap…";
+  loadRekap(key).then(d => {
+    go.disabled = false;
+    if (!d.ok){ err.textContent = "Sandi salah. Periksa ADMIN_PASSWORD di Apps Script."; return; }
+    ADM_KEY = key; err.textContent = ""; admin(d.rows);
+  }).catch(() => { go.disabled = false; err.textContent = "Tidak bisa terhubung ke Google Sheets. Periksa internet dan URL Web App."; });
+};
+function loadRekap(key){ return fetch(SHEET_URL + "?key=" + encodeURIComponent(key)).then(r => r.json()); }
+
+function admin(rows){
+  const s = $("#scr-admin");
+  s.innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <div><span class="tag">Rekap guru</span><h2 style="margin-top:8px">${GAME}</h2><span class="muted" style="font-size:.85rem">Data dari Google Sheets · dimuat ${new Date().toLocaleString("id-ID")}</span></div>
+      <div class="row">
+        <select id="ad-k" aria-label="Filter kelas" style="width:auto"><option value="">Semua kelas</option>${KELAS.map(k=>`<option>${k}</option>`).join("")}</select>
+        <button class="btn" id="ad-e1">Unduh rekap</button><button class="btn ghost" id="ad-e2">Unduh semua percobaan</button>
+        <button class="btn ghost" id="ad-r">Muat ulang</button><button class="btn ghost" id="ad-x">Keluar</button>
+      </div>
+    </div>
+    <div class="tiles" id="ad-t"></div>
+    <p class="muted" style="font-size:.85rem">Nilai terbaik dan nilai per pos diambil dari percobaan dengan persentase tertinggi. Klik baris siswa untuk melihat semua percobaannya.</p>
+    <div class="tablewrap"><table class="adm"><thead><tr><th>Kelas</th><th>Absen</th><th>Nama</th><th>Percobaan</th><th>Nilai terbaik</th><th>Nilai terakhir</th><th>Pos 1</th><th>Pos 2</th><th>Pos 3</th><th>Pos 4</th><th>Terakhir main</th></tr></thead><tbody id="ad-b"></tbody></table></div>
+    <div id="ad-d"></div>`;
+  show("scr-admin");
+  const K = $("#ad-k"), B = $("#ad-b"), D = $("#ad-d");
+  const fmt = t => t ? new Date(t).toLocaleString("id-ID",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "-";
+  const pill = p => p==null ? `<span class="pill no">Belum main</span>` : `<span class="pill ${p>=75?"g":p>=60?"m":"b"}">${p}</span>`;
+  let rekap = [], curRows = [];
+  const draw = () => {
+    const kv = K.value;
+    curRows = rows.filter(r => !kv || r.kelas===kv);
+    const by = {}; curRows.forEach(r => (by[r.kelas+"|"+r.absen] = by[r.kelas+"|"+r.absen] || []).push(r));
+    const list = STUDENTS.filter(x => !kv || x.k===kv).sort((a,b)=>KELAS.indexOf(a.k)-KELAS.indexOf(b.k)||a.a-b.a);
+    let played=0, sum=0; rekap = [];
+    B.innerHTML = list.map(x => {
+      const rs = (by[x.k+"|"+x.a] || []).slice().sort((a,b)=>a.waktu-b.waktu);
+      const best = rs.reduce((m,r)=>!m||r.persen>m.persen?r:m, null), last = rs[rs.length-1];
+      if (best){ played++; sum += best.persen; }
+      const pp = n => best && best["p"+n] ? best["p"+n] : "";
+      rekap.push([x.k, x.a, x.nm, rs.length, best?best.persen:"", last?last.persen:"", pp(1), pp(2), pp(3), pp(4), last?new Date(last.waktu).toLocaleString("id-ID"):""]);
+      return `<tr data-k="${x.k}" data-a="${x.a}"><td>${x.k}</td><td>${x.a}</td><td>${esc(x.nm)}</td><td>${rs.length||"-"}</td><td>${pill(best?best.persen:null)}</td><td>${last?last.persen:"-"}</td><td>${pp(1)||"-"}</td><td>${pp(2)||"-"}</td><td>${pp(3)||"-"}</td><td>${pp(4)||"-"}</td><td>${fmt(last&&last.waktu)}</td></tr>`;
+    }).join("");
+    $("#ad-t").innerHTML = `<div class="tile"><b>${list.length}</b><span>Siswa</span></div><div class="tile"><b>${played}</b><span>Sudah bermain</span></div>
+      <div class="tile"><b>${curRows.length}</b><span>Total percobaan</span></div><div class="tile"><b>${played?Math.round(sum/played):"-"}</b><span>Rata-rata nilai terbaik</span></div>`;
+    B.querySelectorAll("tr").forEach(tr => tr.onclick = () => {
+      B.querySelectorAll("tr.sel").forEach(t=>t.classList.remove("sel")); tr.classList.add("sel");
+      const k = tr.dataset.k, a = +tr.dataset.a, st = STUDENTS.find(x=>x.k===k&&x.a===a);
+      const rs = (by[k+"|"+a] || []).slice().sort((x,y)=>y.waktu-x.waktu);
+      D.innerHTML = `<div class="panel" style="display:flex;flex-direction:column;gap:12px"><h3>${esc(st.nm)} · ${k} · absen ${a}</h3>
+        ${rs.length ? `<div class="tablewrap"><table class="adm"><thead><tr><th>Waktu</th><th>Pos dimainkan</th><th>Benar</th><th>Nilai</th><th>Poin</th><th>Predikat</th><th>Pos 1</th><th>Pos 2</th><th>Pos 3</th><th>Pos 4</th><th>Durasi</th></tr></thead><tbody>
+        ${rs.map(r=>`<tr><td>${fmt(r.waktu)}</td><td>${esc(r.pos)}</td><td>${r.benar}/${r.total}</td><td>${pill(r.persen)}</td><td>${r.poin}</td><td>${esc(r.predikat)}</td><td>${esc(r.p1)||"-"}</td><td>${esc(r.p2)||"-"}</td><td>${esc(r.p3)||"-"}</td><td>${esc(r.p4)||"-"}</td><td>${r.durasi?Math.round(r.durasi/60)+" mnt":"-"}</td></tr>`).join("")}
+        </tbody></table></div>` : `<p class="muted">Siswa ini belum pernah bermain.</p>`}</div>`;
+      D.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  };
+  const csv = (name, head, data) => {
+    const q = v => { v = v==null ? "" : String(v); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+    const txt = "﻿" + [head, ...data].map(r=>r.map(q).join(";")).join("\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt],{type:"text/csv;charset=utf-8"})); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  const tag = () => (K.value || "semua-kelas") + "-" + new Date().toISOString().slice(0,10);
+  K.onchange = () => { D.innerHTML = ""; draw(); };
+  $("#ad-e1").onclick = () => csv(`rekap-status-peran-${tag()}.csv`, ["Kelas","Absen","Nama","Percobaan","Nilai terbaik","Nilai terakhir","Pos 1","Pos 2","Pos 3","Pos 4","Terakhir main"], rekap);
+  $("#ad-e2").onclick = () => csv(`percobaan-status-peran-${tag()}.csv`, ["Waktu","Kelas","Absen","Nama","Pos dimainkan","Benar","Total","Nilai","Poin","Predikat","Pos 1","Pos 2","Pos 3","Pos 4","Durasi (detik)","Pakai waktu"],
+    curRows.slice().sort((a,b)=>a.waktu-b.waktu).map(r=>[new Date(r.waktu).toLocaleString("id-ID"),r.kelas,r.absen,r.nama,r.pos,r.benar,r.total,r.persen,r.poin,r.predikat,r.p1,r.p2,r.p3,r.p4,r.durasi,r.timer?"Ya":"Tidak"]));
+  $("#ad-r").onclick = () => loadRekap(ADM_KEY).then(d => { if (d.ok){ rows = d.rows; D.innerHTML=""; draw(); } });
+  $("#ad-x").onclick = () => { ADM_KEY = null; renderLogin(); };
+  draw();
+}
+
+/* ===================== KONTROL ===================== */
+$("#btn-start").onclick = start;
+$("#btn-next").onclick = next;
+document.addEventListener("keydown", e => {
+  if ($("#scr-play").classList.contains("hidden") || e.target.tagName==="INPUT") return;
+  const q = curQ(); const k = e.key.toLowerCase();
+  if (k==="enter" && S.answered){ e.preventDefault(); next(); return; }
+  if (S.answered) return;
+  if (q.t==="mc" && /^[1-4]$/.test(k)) answer(+k-1);
+  else if (q.t==="tf" && (k==="b"||k==="s")) answer(k==="b");
+  else if (q.t==="sort" && /^[1-5]$/.test(k) && +k<=q.b.length) sortAnswer(+k-1);
+});
+
+/* ===================== MULAI ===================== */
+(function boot(){
+  const ss = store.get("jsp_session", null), st = ss && findStudent(ss.id);
+  if (st) enter(st); else renderLogin();
+})();
+</script>
+</body>
+</html>
