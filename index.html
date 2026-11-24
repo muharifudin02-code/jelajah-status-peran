@@ -166,11 +166,29 @@ table.adm tr.sel td{background:#fff3c9}
 .pill.g{background:#e2f4ea;color:var(--good)}
 .pill.m{background:#fff3c9;color:#8a6300}
 .pill.b{background:#fbe6e4;color:var(--bad)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border:2px solid var(--ink);border-radius:12px;background:var(--card)}
+.topbar .me{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.topbar .me b{font-size:1rem}
+.topbar .me span{font-size:.8rem;color:var(--muted)}
+.btn.sm{padding:8px 16px;font-size:.9rem;box-shadow:2px 2px 0 var(--ink)}
+.btn.danger{background:var(--bad);color:#fff}
+.confirm{display:flex;flex-direction:column;gap:12px;border:2px solid var(--bad);background:#fdf0ef;border-radius:12px;padding:16px}
 @media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <main class="wrap" id="main">
+
+<!-- ========== BILAH PEMAIN + KELUAR ========== -->
+<div id="topbar" class="topbar hidden">
+  <div class="me"><b id="tb-name"></b><span id="tb-kelas"></span></div>
+  <button class="btn ghost sm" id="btn-logout">Keluar</button>
+</div>
+<div id="logout-confirm" class="confirm hidden" role="alertdialog" aria-labelledby="lc-t">
+  <b id="lc-t">Keluar dari permainan?</b>
+  <span>Permainan yang sedang berjalan belum selesai, jadi nilainya tidak akan tersimpan.</span>
+  <div class="row"><button class="btn danger sm" id="btn-logout-yes">Ya, keluar</button><button class="btn ghost sm" id="btn-logout-no">Lanjut bermain</button></div>
+</div>
 
 <!-- ========== LOGIN SISWA ========== -->
 <section id="scr-login" class="hidden" style="display:flex;flex-direction:column;gap:20px">
@@ -208,8 +226,6 @@ table.adm tr.sel td{background:#fff3c9}
     <h1>Jelajah <span class="hl">Status &amp; Peran</span></h1>
     <p class="muted" style="max-width:60ch">Lewati empat pos materi dari modul <i>Status dan Peran Individu dalam Kelompok Sosial</i>. Jawab kuis, tebak benar atau salah, dan kelompokkan konsep ke kategori yang tepat. Soal diacak setiap permainan.</p>
   </div>
-
-  <div class="player"><div><span class="muted" style="font-size:.8rem">Pemain</span><br><b id="pl-name"></b> <span class="muted" id="pl-kelas"></span></div><button class="linkbtn" id="btn-logout">Bukan kamu? Ganti pemain</button></div>
 
   <div class="panel" style="display:flex;flex-direction:column;gap:18px">
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -393,7 +409,9 @@ const $ = s => document.querySelector(s);
 const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const SCREENS = ["scr-login","scr-admlogin","scr-admin","scr-start","scr-play","scr-break","scr-result"];
-function show(id){ SCREENS.forEach(s => $("#"+s).classList.toggle("hidden", s!==id)); $("#main").classList.toggle("wide", id==="scr-admin"); window.scrollTo({top:0}); }
+function show(id){ SCREENS.forEach(s => $("#"+s).classList.toggle("hidden", s!==id));
+  $("#topbar").classList.toggle("hidden", !["scr-start","scr-play","scr-break","scr-result"].includes(id) || !ME);
+  $("#logout-confirm").classList.add("hidden"); $("#main").classList.toggle("wide", id==="scr-admin"); window.scrollTo({top:0}); }
 const store = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
@@ -425,11 +443,22 @@ $("#btn-login").onclick = () => {
 };
 function enter(st){
   ME = st;
-  $("#pl-name").textContent = titleCase(st.nm);
-  $("#pl-kelas").textContent = `· ${st.k} · absen ${st.a}`;
+  $("#tb-name").textContent = titleCase(st.nm);
+  $("#tb-kelas").textContent = `Kelas ${st.k} · absen ${st.a}`;
   renderPosGrid(); show("scr-start"); Sync.flush();
 }
-$("#btn-logout").onclick = () => { store.del("jsp_session"); ME = null; renderLogin(); };
+function logout(){ stopTimer(); S = null; store.del("jsp_session"); ME = null; renderLogin(); }
+$("#btn-logout").onclick = () => {
+  const playing = !$("#scr-play").classList.contains("hidden") || !$("#scr-break").classList.contains("hidden");
+  if (!playing) return logout();
+  stopTimer(); $("#logout-confirm").classList.remove("hidden"); $("#btn-logout-no").focus();
+};
+$("#btn-logout-yes").onclick = logout;
+$("#btn-logout-no").onclick = () => {
+  $("#logout-confirm").classList.add("hidden");
+  // lanjutkan waktu soal yang belum dijawab
+  if (S && !$("#scr-play").classList.contains("hidden") && !S.answered && curQ().t !== "sort") resumeTimer();
+};
 
 /* ===================== KIRIM NILAI KE GOOGLE SHEETS ===================== */
 const OUTBOX = "jsp_outbox_v1";
@@ -507,10 +536,14 @@ function startTimer(){
   const bar = $("#timer");
   if (!S.timer) { bar.classList.add("hidden"); return; }
   bar.classList.remove("hidden","low");
-  S.left = TIME; const t0 = performance.now();
-  const fill = bar.querySelector("i");
+  S.left = TIME; runTimer();
+}
+function resumeTimer(){ if (S.timer && S.left > 0) runTimer(); }
+function runTimer(){
+  stopTimer();
+  const bar = $("#timer"), fill = bar.querySelector("i"), from = S.left, t0 = performance.now();
   S.tick = setInterval(() => {
-    S.left = Math.max(0, TIME - (performance.now()-t0)/1000);
+    S.left = Math.max(0, from - (performance.now()-t0)/1000);
     fill.style.width = (S.left/TIME*100) + "%";
     bar.classList.toggle("low", S.left < 6);
     if (S.left <= 0) { stopTimer(); answer(null); }
@@ -558,7 +591,7 @@ function renderSort(){
 }
 
 function sortAnswer(i){
-  if (S.answered) return;
+  if (S.answered || !$("#logout-confirm").classList.contains("hidden")) return;
   const q = curQ(), item = q.list[S.sortIdx], ok = item[1]===i, R = round();
   S.answered = true;
   q.res[S.sortIdx] = ok; R.total++;
@@ -576,7 +609,7 @@ function sortAnswer(i){
 }
 
 function answer(v){
-  if (S.answered) return;
+  if (S.answered || (v!==null && !$("#logout-confirm").classList.contains("hidden"))) return;
   stopTimer(); S.answered = true;
   const q = curQ(), R = round(); R.total++;
   let ok, yourText, rightText;
@@ -771,7 +804,7 @@ function admin(rows){
 $("#btn-start").onclick = start;
 $("#btn-next").onclick = next;
 document.addEventListener("keydown", e => {
-  if ($("#scr-play").classList.contains("hidden") || e.target.tagName==="INPUT") return;
+  if ($("#scr-play").classList.contains("hidden") || e.target.tagName==="INPUT" || !$("#logout-confirm").classList.contains("hidden")) return;
   const q = curQ(); const k = e.key.toLowerCase();
   if (k==="enter" && S.answered){ e.preventDefault(); next(); return; }
   if (S.answered) return;
