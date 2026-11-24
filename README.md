@@ -34,6 +34,20 @@ Ganti teks di dalam tanda kutip dengan URL dari langkah 1, lalu simpan (commit).
 2. Pada *Source* pilih **Deploy from a branch**, branch **main**, folder **/ (root)**, lalu **Save**.
 3. Setelah 1–2 menit, game bisa dibuka di `https://<nama-akun>.github.io/<nama-repo>/`.
 
+## Reset nilai
+Di halaman guru ada dua cara me-reset nilai:
+- **Reset nilai** di bagian atas: me-reset kelas yang sedang dipilih di filter, atau semua kelas bila filter *Semua kelas*. Guru harus mengetik `RESET` untuk melanjutkan.
+- **Reset nilai siswa ini**: muncul setelah nama siswa diklik.
+
+Nilai yang direset tidak dibuang. Semuanya dipindahkan ke tab **Arsip Reset** di Google Sheets, lengkap dengan kolom *Direset pada*. Untuk mengembalikannya, salin baris dari tab itu ke tab **Hasil** (tanpa kolom terakhir).
+
+### Memperbarui Apps Script
+Fitur reset butuh `rekap-nilai-apps-script.gs` versi terbaru:
+1. Buka Google Sheets → **Ekstensi → Apps Script**, ganti seluruh isi dengan file terbaru. Isi kembali sandi Anda di baris `ADMIN_PASSWORD`.
+2. Klik **Simpan**, lalu **Terapkan → Kelola deployment** → ikon pensil → *Versi*: **Versi baru** → **Terapkan**.
+
+Dengan cara ini URL `/exec` tetap sama, jadi `index.html` tidak perlu diubah.
+
 ## Mengubah daftar siswa atau soal
 - **Daftar siswa** ada di `const STUDENTS = [...]` dalam `index.html`. Tiap siswa ditulis `{"l":"L","nm":"NAMA","k":"X-1","a":1}` (l = jenis kelamin, nm = nama, k = kelas, a = nomor absen).
 - **Bank soal** ada di `const POS = [...]`. Jenis soal: `mc` (pilihan ganda, jawaban benar selalu ditulis pertama dan akan diacak), `tf` (benar/salah), dan `sort` (kelompokkan).

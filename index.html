@@ -172,6 +172,7 @@ table.adm tr.sel td{background:#fff3c9}
 .topbar .me span{font-size:.8rem;color:var(--muted)}
 .btn.sm{padding:8px 16px;font-size:.9rem;box-shadow:2px 2px 0 var(--ink)}
 .btn.danger{background:var(--bad);color:#fff}
+.confirm .field{flex:none}
 .confirm{display:flex;flex-direction:column;gap:12px;border:2px solid var(--bad);background:#fdf0ef;border-radius:12px;padding:16px}
 @media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -745,9 +746,11 @@ function admin(rows){
       <div class="row">
         <select id="ad-k" aria-label="Filter kelas" style="width:auto"><option value="">Semua kelas</option>${KELAS.map(k=>`<option>${k}</option>`).join("")}</select>
         <button class="btn" id="ad-e1">Unduh rekap</button><button class="btn ghost" id="ad-e2">Unduh semua percobaan</button>
-        <button class="btn ghost" id="ad-r">Muat ulang</button><button class="btn ghost" id="ad-x">Keluar</button>
+        <button class="btn ghost" id="ad-r">Muat ulang</button><button class="btn ghost" id="ad-reset" style="color:var(--bad);border-color:var(--bad)">Reset nilai</button><button class="btn ghost" id="ad-x">Keluar</button>
       </div>
     </div>
+    <div class="sync ok hidden" id="ad-msg" aria-live="polite"></div>
+    <div id="ad-rc"></div>
     <div class="tiles" id="ad-t"></div>
     <p class="muted" style="font-size:.85rem">Nilai terbaik dan nilai per pos diambil dari percobaan dengan persentase tertinggi. Klik baris siswa untuk melihat semua percobaannya.</p>
     <div class="tablewrap"><table class="adm"><thead><tr><th>Kelas</th><th>Absen</th><th>Nama</th><th>Percobaan</th><th>Nilai terbaik</th><th>Nilai terakhir</th><th>Pos 1</th><th>Pos 2</th><th>Pos 3</th><th>Pos 4</th><th>Terakhir main</th></tr></thead><tbody id="ad-b"></tbody></table></div>
@@ -777,10 +780,13 @@ function admin(rows){
       B.querySelectorAll("tr.sel").forEach(t=>t.classList.remove("sel")); tr.classList.add("sel");
       const k = tr.dataset.k, a = +tr.dataset.a, st = STUDENTS.find(x=>x.k===k&&x.a===a);
       const rs = (by[k+"|"+a] || []).slice().sort((x,y)=>y.waktu-x.waktu);
-      D.innerHTML = `<div class="panel" style="display:flex;flex-direction:column;gap:12px"><h3>${esc(st.nm)} · ${k} · absen ${a}</h3>
+      D.innerHTML = `<div class="panel" style="display:flex;flex-direction:column;gap:12px"><div class="row" style="justify-content:space-between"><h3>${esc(st.nm)} · ${k} · absen ${a}</h3>
+        ${rs.length?`<button class="btn ghost sm" id="ad-rs1" style="color:var(--bad);border-color:var(--bad)">Reset nilai siswa ini</button>`:""}</div><div id="ad-rc1"></div>
         ${rs.length ? `<div class="tablewrap"><table class="adm"><thead><tr><th>Waktu</th><th>Pos dimainkan</th><th>Benar</th><th>Nilai</th><th>Poin</th><th>Predikat</th><th>Pos 1</th><th>Pos 2</th><th>Pos 3</th><th>Pos 4</th><th>Durasi</th></tr></thead><tbody>
         ${rs.map(r=>`<tr><td>${fmt(r.waktu)}</td><td>${esc(r.pos)}</td><td>${r.benar}/${r.total}</td><td>${pill(r.persen)}</td><td>${r.poin}</td><td>${esc(r.predikat)}</td><td>${esc(r.p1)||"-"}</td><td>${esc(r.p2)||"-"}</td><td>${esc(r.p3)||"-"}</td><td>${esc(r.p4)||"-"}</td><td>${r.durasi?Math.round(r.durasi/60)+" mnt":"-"}</td></tr>`).join("")}
         </tbody></table></div>` : `<p class="muted">Siswa ini belum pernah bermain.</p>`}</div>`;
+      const b1 = $("#ad-rs1");
+      if (b1) b1.onclick = () => askReset($("#ad-rc1"), {kelas:k, absen:a, label:`semua nilai ${st.nm} (${k}, absen ${a})`, count:rs.length, students:1, type:false});
       D.scrollIntoView({behavior:"smooth", block:"start"});
     });
   };
@@ -797,6 +803,40 @@ function admin(rows){
     curRows.slice().sort((a,b)=>a.waktu-b.waktu).map(r=>[new Date(r.waktu).toLocaleString("id-ID"),r.kelas,r.absen,r.nama,r.pos,r.benar,r.total,r.persen,r.poin,r.predikat,r.p1,r.p2,r.p3,r.p4,r.durasi,r.timer?"Ya":"Tidak"]));
   $("#ad-r").onclick = () => loadRekap(ADM_KEY).then(d => { if (d.ok){ rows = d.rows; D.innerHTML=""; draw(); } });
   $("#ad-x").onclick = () => { ADM_KEY = null; renderLogin(); };
+
+  /* ---------- reset nilai ---------- */
+  const msg = (t, ok=true) => { const m = $("#ad-msg"); m.textContent = t; m.className = "sync " + (ok?"ok":"wait"); };
+  function askReset(box, o){
+    $("#ad-rc").innerHTML = ""; const d1 = $("#ad-rc1"); if (d1) d1.innerHTML = "";
+    if (!o.count){ box.innerHTML = `<p class="muted">Belum ada nilai untuk direset.</p>`; return; }
+    box.innerHTML = `<div class="confirm" role="alertdialog" aria-labelledby="rc-t">
+      <b id="rc-t">Reset ${esc(o.label)}?</b>
+      <span>${o.count} percobaan${o.students>1?` dari ${o.students} siswa`:""} akan dihapus dari rekap. Datanya tidak hilang: semuanya dipindahkan ke tab <b>Arsip Reset</b> di Google Sheets.</span>
+      ${o.type?`<div class="field"><label for="rc-in">Ketik <b>RESET</b> untuk melanjutkan</label><input type="text" id="rc-in" autocomplete="off"></div>`:""}
+      <div class="err" id="rc-err" role="alert"></div>
+      <div class="row"><button class="btn danger sm" id="rc-go">Reset sekarang</button><button class="btn ghost sm" id="rc-no">Batal</button></div></div>`;
+    const go = $("#rc-go", box), inp = box.querySelector("#rc-in"), err = box.querySelector("#rc-err");
+    box.querySelector("#rc-no").onclick = () => box.innerHTML = "";
+    (inp || go).focus();
+    go.onclick = () => {
+      if (inp && inp.value.trim().toUpperCase() !== "RESET"){ err.textContent = "Ketik kata RESET untuk melanjutkan."; inp.focus(); return; }
+      go.disabled = true; err.textContent = "Mereset nilai…";
+      const q = "&action=reset" + (o.kelas?"&kelas="+encodeURIComponent(o.kelas):"") + (o.absen?"&absen="+encodeURIComponent(o.absen):"");
+      fetch(SHEET_URL + "?key=" + encodeURIComponent(ADM_KEY) + q).then(r => r.json()).then(d => {
+        go.disabled = false;
+        if (!d.ok){ err.textContent = "Sandi ditolak. Keluar lalu masuk lagi sebagai guru."; return; }
+        if (typeof d.reset !== "number"){ err.textContent = "Apps Script di Google Sheets belum diperbarui ke versi yang punya fitur reset. Lihat README bagian Memperbarui Apps Script."; return; }
+        rows = d.rows; D.innerHTML = ""; box.innerHTML = ""; draw();
+        msg(`${d.reset} percobaan direset dan dipindahkan ke tab Arsip Reset.`);
+      }).catch(() => { go.disabled = false; err.textContent = "Tidak bisa terhubung ke Google Sheets. Coba lagi."; });
+    };
+  }
+  $("#ad-reset").onclick = () => {
+    const kv = K.value, rs = rows.filter(r => !kv || r.kelas===kv);
+    askReset($("#ad-rc"), {kelas:kv, absen:"", label: kv ? `nilai seluruh siswa kelas ${kv}` : "nilai SEMUA kelas", count:rs.length,
+      students:new Set(rs.map(r=>r.kelas+"|"+r.absen)).size, type:true});
+    $("#ad-rc").scrollIntoView({behavior:"smooth", block:"center"});
+  };
   draw();
 }
 
