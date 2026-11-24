@@ -234,12 +234,11 @@ table.adm tr.sel td{background:#fff3c9}
       <div class="posgrid" id="posgrid"></div>
       <p class="muted" style="font-size:.85rem">Semua pos terpilih secara bawaan. Ketuk untuk menyalakan atau mematikan pos.</p>
     </div>
-    <label class="toggle" for="inp-timer"><input type="checkbox" id="inp-timer" checked> Pakai batas waktu 25 detik per soal (bonus poin untuk jawaban cepat)</label>
     <div class="row"><button class="btn" id="btn-start">Mulai menjelajah</button><span class="muted" id="start-info" style="font-size:.9rem"></span></div>
   </div>
 
   <div class="how">
-    <div><b>Pilihan ganda</b>100 poin per jawaban benar, ditambah bonus waktu.</div>
+    <div><b>Pilihan ganda</b>100 poin per jawaban benar, tanpa batas waktu.</div>
     <div><b>Benar atau salah</b>Putuskan apakah pernyataan sesuai modul.</div>
     <div><b>Kelompokkan</b>Masukkan tiap konsep ke kategori yang tepat, 50 poin per item.</div>
     <div><b>Beruntun</b>Jawaban benar berturut-turut memberi bonus hingga +40.</div>
@@ -509,7 +508,7 @@ function start(){
   const posList = POS.filter(p => chosen.has(p.id));
   S = {
     name: titleCase(ME.nm), kelas: ME.k,
-    timer: $("#inp-timer").checked, t0: Date.now(),
+    timer: false, t0: Date.now(),
     rounds: posList.map(p => ({pos:p, qs:buildRound(p), right:0, total:0})),
     r:0, q:0, score:0, streak:0, best:0, mistakes:[], answered:false, sortIdx:0, tick:null
   };
